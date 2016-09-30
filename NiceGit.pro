@@ -8,17 +8,17 @@ SOURCES += \
     main.cpp \
     githandler.cpp \
     gitrepository.cpp \
-    repositorymodel.cpp
+    repositorymodel.cpp \
+    gitreflog.cpp
 
 HEADERS += \
     githandler.h \
     gitrepository.h \
-    repositorymodel.h
+    repositorymodel.h \
+    gitreflog.h
 
 DISTFILES += \
     qml/MainView.qml
-
-DEPLOYMENT += $$DISTFILES
 
 RESOURCES += \
     resources.qrc

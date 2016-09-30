@@ -5,10 +5,7 @@
 #include <qqml.h>
 
 #include <gitrepository.h>
-
-extern "C" {
 #include <git2.h>
-}
 
 GitHandler::GitHandler() : QObject()
   ,m_repositories(new RepositoryModel(this))

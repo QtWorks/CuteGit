@@ -4,10 +4,7 @@
 #include <QObject>
 #include <QString>
 
-extern "C"
-{
-    struct git_repository;
-}
+struct git_repository;
 
 
 class GitRepository : public QObject
