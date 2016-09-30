@@ -7,11 +7,13 @@ LIBS += -lgit2
 SOURCES += \
     main.cpp \
     githandler.cpp \
-    gitrepository.cpp
+    gitrepository.cpp \
+    repositorymodel.cpp
 
 HEADERS += \
     githandler.h \
-    gitrepository.h
+    gitrepository.h \
+    repositorymodel.h
 
 DISTFILES += \
     qml/MainView.qml

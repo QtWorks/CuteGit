@@ -4,12 +4,24 @@ import QtQuick.Dialogs 1.2
 
 Item {
     Row {
+        id: selector
         Text {
             text: "Active repository" + repoOpenDialog.fileUrl
         }
         Button {
             text: "Choose..."
             onClicked: repoOpenDialog.open()
+        }
+    }
+
+    Column {
+        anchors.top: selector.bottom
+        Repeater {
+            model: _handler.repositories
+
+            Text {
+                text: model.repoName
+            }
         }
     }
 

@@ -3,42 +3,34 @@
 
 #include <QObject>
 
-#include <gitrepository.h>
+#include <repositorymodel.h>
 
 class GitHandler : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(GitRepository* repo READ repo WRITE setRepo NOTIFY repoChanged)
+    Q_PROPERTY(RepositoryModel* repositories READ repositories NOTIFY repositoriesChanged)
 
 public:
     GitHandler();
     virtual ~GitHandler();
     Q_INVOKABLE void open(const QString &path);
     Q_INVOKABLE void open(const QUrl &url);
-    Q_INVOKABLE void close();
 
-    GitRepository* repo() const
+    RepositoryModel* repositories() const
     {
-        return m_repo;
+        return m_repositories;
     }
 
 public slots:
-    void setRepo(GitRepository* repo)
-    {
-        if (m_repo == repo)
-            return;
-
-        m_repo = repo;
-        emit repoChanged(repo);
-    }
 
 signals:
-    void repoChanged(GitRepository* repo);
+    void repositoriesChanged(RepositoryModel* repositories);
 
 protected:
     QString lastError() const;
+
 private:
-    GitRepository* m_repo;
+    RepositoryModel* m_repositories;
 };
 
 #endif // GITHANDLER_H

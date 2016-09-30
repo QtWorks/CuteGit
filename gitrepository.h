@@ -14,14 +14,11 @@ class GitRepository : public QObject
 {
     Q_PROPERTY(QString root READ root WRITE setRoot NOTIFY rootChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
+    Q_PROPERTY(QString path READ path NOTIFY rootChanged)
 
 public:
-    GitRepository();
+    GitRepository(const QString &root);
     ~GitRepository();
-
-    Q_INVOKABLE void open(const QString &path);
-    Q_INVOKABLE void open(const QUrl &url);
-    Q_INVOKABLE void close();
 
     QString root() const {
         return m_root;
@@ -29,6 +26,15 @@ public:
 
     QString name() const {
         return m_name;
+    }
+
+    QString path() const
+    {
+        return m_path;
+    }
+
+    bool isValid() const {
+        return m_repo != nullptr;
     }
 
 public slots:
@@ -53,9 +59,12 @@ signals:
     void nameChanged(QString name);
 
 private:
+    void close();
+
     QString m_root;
     QString m_name;
     git_repository* m_repo;
+    QString m_path;
 };
 
 #endif // GITREPOSITORY_H
