@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<RepositoryModel>("org.semlanik.nicegit", 1, 0, "RepositoryModel", "Owned only by GitHandler");
 
     GitHandler handler;
+    handler.open("/home/semlanik/Projects/testrepo/");
     view.rootContext()->setContextProperty("_handler", &handler);
     view.setSource(QUrl("qrc:/qml/MainView.qml"));
     view.showMaximized();

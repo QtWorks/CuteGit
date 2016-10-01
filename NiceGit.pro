@@ -9,13 +9,21 @@ SOURCES += \
     githandler.cpp \
     gitrepository.cpp \
     repositorymodel.cpp \
-    gitreflog.cpp
+    gitreflog.cpp \
+    gitbranch.cpp \
+    gitreference.cpp \
+    gitbase.cpp \
+    gitoid.cpp
 
 HEADERS += \
     githandler.h \
     gitrepository.h \
     repositorymodel.h \
-    gitreflog.h
+    gitreflog.h \
+    gitbranch.h \
+    gitreference.h \
+    gitbase.h \
+    gitoid.h
 
 DISTFILES += \
     qml/MainView.qml

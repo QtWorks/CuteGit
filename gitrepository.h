@@ -9,10 +9,10 @@ struct git_repository;
 
 class GitRepository : public QObject
 {
+    Q_OBJECT
     Q_PROPERTY(QString root READ root WRITE setRoot NOTIFY rootChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QString path READ path NOTIFY rootChanged)
-
 public:
     GitRepository(const QString &root);
     ~GitRepository();
@@ -30,9 +30,14 @@ public:
         return m_path;
     }
 
-    bool isValid() const {
-        return m_repo != nullptr;
+    git_repository* raw() const {
+        return m_raw;
     }
+
+    bool isValid() const {
+        return m_raw != nullptr;
+    }
+
 
 public slots:
     void setRoot(QString root) {
@@ -60,8 +65,8 @@ private:
 
     QString m_root;
     QString m_name;
-    git_repository* m_repo;
     QString m_path;
+    git_repository* m_raw;
 };
 
 #endif // GITREPOSITORY_H

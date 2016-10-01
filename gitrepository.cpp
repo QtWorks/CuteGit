@@ -4,25 +4,28 @@
 #include <QFileInfo>
 #include <QDir>
 
+#include <gitbranch.h>
+
 #include <git2.h>
 
-GitRepository::GitRepository(const QString& root) : QObject()
-  ,m_repo(nullptr)
+char oid_buf[GIT_OID_HEXSZ+1];
+
+GitRepository::GitRepository(const QString& root) : QObject(nullptr)
 {
-    if(git_repository_open(&m_repo, root.toUtf8().data()) != 0) {
+    if(git_repository_open(&m_raw, root.toUtf8().data()) != 0) {
         qDebug() << "Cannot open repository";
         close();
         return;
     }
 
     m_root = root;
-    m_path = git_repository_workdir(m_repo);
+    m_path = git_repository_workdir(m_raw);
     m_name = m_path;//TODO: replace with Human readable name
     qDebug() << "New repo:" << m_name << m_root << m_path;
 
     //    git_reflog* reflog;
 
-    //    if(git_reflog_read(&reflog, m_repo, "HEAD") != 0) {
+    //    if(git_reflog_read(&reflog, m_raw, "HEAD") != 0) {
     //        qDebug() << "reflogs could not be read";
     //        return;
     //    }
@@ -37,46 +40,47 @@ GitRepository::GitRepository(const QString& root) : QObject()
     //    }
     //    git_reflog_free(reflog);
 
-
     git_reference *out;
     git_branch_t branch;
     git_branch_iterator* iter;
-    git_branch_iterator_new(&iter, m_repo, GIT_BRANCH_ALL);
+    git_branch_iterator_new(&iter, m_raw, GIT_BRANCH_ALL);
 
+    git_revwalk* walk;
+    git_revwalk_new(&walk, m_raw);
+    qDebug() << "Branches found:";
     while(git_branch_next(&out, &branch, iter) == 0)
     {
-        const char* branch_name;
-        git_branch_name(&branch_name, out);
-        qDebug() << branch_name;
+        GitBranch testBranch(out, this);
+        qDebug() << testBranch.name();
+    }
 
-        git_revwalk* walk;
-        git_revwalk_new(&walk, m_repo);
-        git_revwalk_push_head(walk);
-        git_revwalk_sorting(walk, GIT_SORT_TOPOLOGICAL);
+    return;
 
-        git_oid newoid;
-        while(git_revwalk_next(&newoid, walk) == 0)
+    git_revwalk_push_glob(walk, "refs/heads/*");
+    git_revwalk_sorting(walk, GIT_SORT_TIME);
+
+    git_oid newoid;
+    while(git_revwalk_next(&newoid, walk) == 0)
+    {
+        git_commit *wcommit;
+        if(git_commit_lookup(&wcommit, m_raw, &newoid) != 0 )
         {
-            git_commit *wcommit;
-            if(git_commit_lookup(&wcommit, m_repo, &newoid) != 0 )
-            {
-                qDebug() << "git_commit_lookup error";
-                continue;
-            }
-
-            qDebug() << git_commit_id(wcommit);
-            qDebug() << git_commit_time( wcommit );
-            qDebug() << git_commit_message( wcommit );
-            qDebug() << git_commit_author( wcommit );
-
-            qDebug() << "=================================================";
-            git_commit_free( wcommit );
+            qDebug() << "git_commit_lookup error";
+            continue;
         }
 
-        git_revwalk_free( walk );
+        const git_oid* commit_oid = git_commit_id(wcommit);
+        git_oid_tostr(oid_buf,GIT_OID_HEXSZ+1,commit_oid);
+        qDebug() << oid_buf;
+        qDebug() << git_commit_time( wcommit );
+        qDebug() << git_commit_message( wcommit );
+        qDebug() << git_commit_author( wcommit );
 
-        git_reference_free(out);
+        qDebug() << "=================================================";
+        git_commit_free( wcommit );
     }
+
+    git_revwalk_free( walk );
 
 }
 
@@ -87,8 +91,8 @@ GitRepository::~GitRepository()
 
 void GitRepository::close()
 {
-    if(m_repo) {
-        git_repository_free(m_repo);
+    if(m_raw) {
+        git_repository_free(m_raw);
     }
-    m_repo = nullptr;
+    m_raw = nullptr;
 }
