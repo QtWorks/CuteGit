@@ -3,9 +3,13 @@
 
 #include <QObject>
 #include <QString>
+#include <QHash>
+#include <QPointer>
 
 struct git_repository;
 
+class GitBranch;
+typedef QHash<QString, QPointer<GitBranch>> BranchContainer;
 
 class GitRepository : public QObject
 {
@@ -13,6 +17,7 @@ class GitRepository : public QObject
     Q_PROPERTY(QString root READ root WRITE setRoot NOTIFY rootChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QString path READ path NOTIFY rootChanged)
+
 public:
     GitRepository(const QString &root);
     ~GitRepository();
@@ -25,8 +30,7 @@ public:
         return m_name;
     }
 
-    QString path() const
-    {
+    QString path() const {
         return m_path;
     }
 
@@ -36,6 +40,10 @@ public:
 
     bool isValid() const {
         return m_raw != nullptr;
+    }
+
+    BranchContainer& branches() {
+        return m_branches;
     }
 
 
@@ -62,11 +70,14 @@ signals:
 
 private:
     void close();
+    void readBranches();
 
     QString m_root;
     QString m_name;
     QString m_path;
     git_repository* m_raw;
+
+    BranchContainer m_branches;
 };
 
 #endif // GITREPOSITORY_H

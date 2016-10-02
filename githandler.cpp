@@ -5,6 +5,8 @@
 #include <qqml.h>
 
 #include <gitrepository.h>
+#include <gitbranch.h>
+#include <commitmodel.h>
 #include <git2.h>
 
 GitHandler::GitHandler() : QObject()
@@ -39,8 +41,24 @@ void GitHandler::open(const QString &path)
         return;
     }
 
-    m_repositories->addRepository(repo);
+    BranchContainer &branches = repo->branches();
+
+//    foreach(GitBranch* branch, branches) {
+//        qDebug() << "Branch: " << branch->name();
+//        CommitModel* model = CommitModel::fromBranch(branch);
+//        m_commits.insert(model->head(), model);
+//    }
+
+    CommitModel* model = CommitModel::fromBranch(branches.value("master"));
+    m_commits.insert(model->head(), model);
+    m_repositories->add(repo);
 }
+
+CommitModel* GitHandler::modelByHead(const QString& head)
+{
+    return m_commits.value(head).data();
+}
+
 
 QString GitHandler::lastError() const
 {

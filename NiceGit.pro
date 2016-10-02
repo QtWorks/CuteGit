@@ -9,24 +9,29 @@ SOURCES += \
     githandler.cpp \
     gitrepository.cpp \
     repositorymodel.cpp \
-    gitreflog.cpp \
     gitbranch.cpp \
     gitreference.cpp \
     gitbase.cpp \
-    gitoid.cpp
+    gitoid.cpp \
+    gitcommit.cpp \
+    commitmodel.cpp \
+    universallistmodel.cpp
 
 HEADERS += \
     githandler.h \
     gitrepository.h \
     repositorymodel.h \
-    gitreflog.h \
     gitbranch.h \
     gitreference.h \
     gitbase.h \
-    gitoid.h
-
-DISTFILES += \
-    qml/MainView.qml
+    gitoid.h \
+    gitcommit.h \
+    commitmodel.h \
+    universallistmodel.h
 
 RESOURCES += \
     resources.qrc
+
+debug {
+    DEFINES += DEBUG
+}

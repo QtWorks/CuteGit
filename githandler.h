@@ -5,6 +5,9 @@
 
 #include <repositorymodel.h>
 
+class CommitModel;
+typedef QHash<QString, QPointer<CommitModel>> CommitModelContainer;
+
 class GitHandler : public QObject
 {
     Q_OBJECT
@@ -21,7 +24,7 @@ public:
         return m_repositories;
     }
 
-public slots:
+    Q_INVOKABLE CommitModel* modelByHead(const QString& head);
 
 signals:
     void repositoriesChanged(RepositoryModel* repositories);
@@ -31,6 +34,7 @@ protected:
 
 private:
     RepositoryModel* m_repositories;
+    CommitModelContainer m_commits;
 };
 
 #endif // GITHANDLER_H
