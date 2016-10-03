@@ -38,6 +38,7 @@ Item {
             height: 100
             Text {
                 anchors.centerIn: parent
+                maximumLineCount: 8
                 text: model.sha1
             }
         }

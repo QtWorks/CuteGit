@@ -2,6 +2,7 @@
 #define GITOID_H
 
 #include <QObject>
+#include <QString>
 #include <git2/oid.h>
 
 class GitRepository;
@@ -25,7 +26,7 @@ public:
         return m_repository;
     }
 
-    const QLatin1String &toString() const;
+    QString toString() const;
 
     bool isValid() const;
 
@@ -33,7 +34,7 @@ private:
     void updateOid(const git_oid* oid);
 
     git_oid m_oid;
-    QLatin1String m_string;
+    QString m_string;
     GitRepository *m_repository;
 };
 

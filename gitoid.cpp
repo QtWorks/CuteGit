@@ -15,7 +15,7 @@ GitOid::GitOid(const GitOid& other) : QObject()
     m_repository = other.m_repository;
 }
 
-const QLatin1String& GitOid::toString() const
+QString GitOid::toString() const
 {
     return m_string;
 }

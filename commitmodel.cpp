@@ -18,15 +18,12 @@ CommitModel* CommitModel::fromBranch(GitBranch* branch)
     git_revwalk_sorting(walk, GIT_SORT_TIME);
 
     git_oid newOid;
-    while(git_revwalk_next(&newOid, walk) == 0)
-    {
+    while(git_revwalk_next(&newOid, walk) == 0) {
         GitOid commitOid(&newOid, branch->repository());
-        if(!tmpModel->m_container.isEmpty()) {
-            qDebug() << "Last:" << tmpModel->m_container.last().data()->sha1();
-        }
         GitCommit *commit = GitCommit::fromOid(commitOid);
-        qDebug() << commit->sha1();
-        tmpModel->add(commit);
+        if(commit != nullptr) {
+            tmpModel->add(commit);
+        }
     }
 
     git_revwalk_free(walk);
