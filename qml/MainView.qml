@@ -28,18 +28,56 @@ Item {
 
 
     ListView {
-        height: 200
-        width: 100
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        width: 200
         anchors.right: parent.right
         model: _handler.modelByHead("master")
         delegate: Rectangle {
+            id: idRect
+            width: parent.width
+            height: 80
             color: "#cccccc"
-            width: 200
-            height: 100
+            states: [
+                State {
+                    name:"full"
+                    PropertyChanges {
+                        target: sha1Lable
+                        text: model.sha1
+                    }
+                    PropertyChanges {
+                        target: idRect
+                        color: "#dddddd"
+                    }
+                },
+                State {
+                    name:"short"
+                    PropertyChanges {
+                        target: sha1Lable
+                        text: model.shortSha1
+                    }
+                    PropertyChanges {
+                        target: idRect
+                        color: "#cccccc"
+                    }
+                }]
+
+            state: "short"
+
             Text {
-                anchors.centerIn: parent
+                id: sha1Lable
                 maximumLineCount: 8
-                text: model.sha1
+                text: model.shortSha1
+            }
+            MouseArea {
+                hoverEnabled: true
+                anchors.fill: parent
+                onEntered: {
+                    parent.state = "full"
+                }
+                onExited: {
+                    parent.state = "short"
+                }
             }
         }
     }

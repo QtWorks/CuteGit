@@ -16,6 +16,7 @@ class GitCommit : public GitBase<git_commit>
     Q_PROPERTY(QDateTime time READ time WRITE setTime NOTIFY commitChanged)
     Q_PROPERTY(QString message READ message WRITE setMessage NOTIFY commitChanged)
     Q_PROPERTY(QString sha1 READ sha1 NOTIFY commitChanged)
+    Q_PROPERTY(QString shortSha1 READ shortSha1 NOTIFY commitChanged)
 
 public:
     GitCommit(git_commit* raw, GitRepository* parent);
@@ -28,6 +29,7 @@ public:
     QString message() const;
     QString email() const;
     QString sha1() const;
+    QString shortSha1() const;
 
 public slots:
     void setAuthor(QString author);

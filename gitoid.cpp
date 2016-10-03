@@ -20,6 +20,12 @@ QString GitOid::toString() const
     return m_string;
 }
 
+QString GitOid::toShorten() const
+{
+    return m_string.mid(0,9);
+}
+
+
 bool GitOid::operator ==(const GitOid& other) const
 {
     return git_oid_equal(&m_oid, &(other.m_oid)) == 0

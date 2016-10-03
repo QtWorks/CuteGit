@@ -60,6 +60,11 @@ QString GitCommit::sha1() const
     return oid().toString();
 }
 
+QString GitCommit::shortSha1() const
+{
+    return oid().toShorten();
+}
+
 void GitCommit::setAuthor(QString author)
 {
     Q_UNUSED(author)

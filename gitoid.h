@@ -27,6 +27,7 @@ public:
     }
 
     QString toString() const;
+    QString toShorten() const;
 
     bool isValid() const;
 
