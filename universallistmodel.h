@@ -16,11 +16,9 @@ template <typename T>
 class UniversalListModel : public QAbstractListModel
 {
 public:
+    UniversalListModel(QObject* parent = 0) : QAbstractListModel(parent) {}
     ~UniversalListModel() {
-        foreach (QPointer<T> value, m_container) {
-            delete value.data();
-        }
-        m_container.clear();
+        clear();
     }
 
     int rowCount(const QModelIndex &parent) const {
@@ -42,7 +40,7 @@ public:
     {
         int row = index.row();
 
-        if(row < 0 || row >= m_container.count()) {
+        if(row < 0 || row >= m_container.count() || m_container.at(row).isNull()) {
             return QVariant();
         }
 
@@ -77,19 +75,29 @@ public:
         }
     }
 
-protected:
-    UniversalListModel(QObject* parent = 0) : QAbstractListModel(parent) {}
+    void reset(const QList<QPointer<T> >& container) {
+        beginResetModel();
+        clear();
+        m_container = container;
+        endResetModel();
+    }
 
-    QList<QPointer<T>> m_container;
+protected:
+    void clear() {
+        foreach (const QPointer<T>& value, m_container) {
+            delete value.data();
+        }
+        m_container.clear();
+    }
+
+    QList<QPointer<T> > m_container;
     static QHash<int, QByteArray> s_roleNames;
 
 
 private:
-#ifdef DEBUG
     static QByteArray fullTemplateName() { //Debug helper
         return QString("UniversalListModel<%1>").arg(T::staticMetaObject.className()).toLatin1();
     }
-#endif
 };
 
 template<typename T>
