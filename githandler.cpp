@@ -9,6 +9,8 @@
 #include <commitmodel.h>
 #include <git2.h>
 
+#include <commitgraph.h>
+
 GitHandler::GitHandler() : QObject()
   ,m_repositories(new RepositoryModel(this))
 {
@@ -43,28 +45,20 @@ void GitHandler::open(const QString &path)
 
     BranchContainer &branches = repo->branches();
 
-    QMap<GitOid, GitBranch*> branchesSorted;
-    CommitModel* model = nullptr;
-//    CommitModel* model = CommitModel::fromBranch(branches.value("master"));
-//    m_commits.insert(model->head(), model);
+    CommitGraph* graph = new CommitGraph();
+    graph->addHead(branches.value("master").data()->oid());
     foreach(GitBranch* branch, branches) {
-        branchesSorted.insert(branch->oid(), branch);
-//        if(m_commits.contains(branch->name())) {
-//            continue;
-//        }
-
-//        model = CommitModel::fromBranch(branch);
-//        m_commits.insert(model->head(), model);
+        qDebug() << "Next head " << branch->name();
+        graph->addHead(branch->oid());
     }
 
-    foreach(GitBranch* branch, branchesSorted) {
-        model = CommitModel::fromBranch(branch);
-        m_commits.insert(model->head(), model);
+    foreach (GitCommit* commit, graph->m_fullList) {
+        qDebug() << commit->sha1();
+        commit->m_y = graph->m_fullList.indexOf(commit);
     }
-
 
     CommitModel* main = new CommitModel("main");
-    foreach (GitCommit* commitPtr, GitCommit::m_commitPool) {
+    foreach (GitCommit* commitPtr, graph->m_commits) {
         main->add(commitPtr);
     }
     m_commits.insert("main", main);

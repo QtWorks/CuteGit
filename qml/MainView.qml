@@ -39,19 +39,21 @@ Item {
             y: model.y*(height+10)
             width: 100
             height: 30
-            color: {
-                var red = ((model.x+10)*5).toString()
-                var green = (128 + (model.x + 10)*5).toString()
-                var blue = (128 + (model.x + 10)*5).toString()
-
-                red = red.length < 2 ? "0" + red : red
-                blue = blue.length < 2 ? "0" + blue : blue
-                green = green.length < 2 ? "0" + green : green
-
-                return "#"+red+green+blue
-            }
+            color: "#"+model.color;
             Text {
+                id: sha1Lable
+                maximumLineCount: 8
                 text: model.shortSha1
+            }
+            MouseArea {
+                hoverEnabled: true
+                anchors.fill: parent
+                onEntered: {
+                    parent.state = "full"
+                }
+                onExited: {
+                    parent.state = "short"
+                }
             }
         }
     }

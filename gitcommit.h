@@ -20,6 +20,7 @@ class GitCommit : public GitBase<git_commit>
     Q_PROPERTY(bool isMerge READ isMerge NOTIFY commitChanged)
     Q_PROPERTY(int x READ x NOTIFY commitChanged)
     Q_PROPERTY(int y READ y NOTIFY commitChanged)
+    Q_PROPERTY(QString color READ color)
 
 public:
     GitCommit(git_commit* raw, GitRepository* parent);
@@ -36,6 +37,7 @@ public:
     bool isMerge() const;
     int x() const { return m_x; }
     int y() const { return m_y; }
+    QString color() const { return m_color; }
 
 public slots:
     void setAuthor(QString author);
@@ -55,10 +57,10 @@ private:
     QString m_email;
 
 public:
-    static QHash<GitOid, GitCommit*> m_commitPool;
     int m_x;
     int m_y;
     int m_childrenCounter;
+    QString m_color;
 };
 
 #endif // GITCOMMIT_H

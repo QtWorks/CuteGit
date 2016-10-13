@@ -15,7 +15,9 @@ SOURCES += \
     gitoid.cpp \
     gitcommit.cpp \
     commitmodel.cpp \
-    universallistmodel.cpp
+    universallistmodel.cpp \
+    commitgraph.cpp \
+    commitviewmodel.cpp
 
 HEADERS += \
     githandler.h \
@@ -27,7 +29,9 @@ HEADERS += \
     gitoid.h \
     gitcommit.h \
     commitmodel.h \
-    universallistmodel.h
+    universallistmodel.h \
+    commitgraph.h \
+    commitviewmodel.h
 
 RESOURCES += \
     resources.qrc
