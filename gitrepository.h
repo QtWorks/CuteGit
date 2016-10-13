@@ -3,13 +3,13 @@
 
 #include <QObject>
 #include <QString>
-#include <QHash>
+#include <QMap>
 #include <QPointer>
 
 struct git_repository;
 
 class GitBranch;
-typedef QHash<QString, QPointer<GitBranch>> BranchContainer;
+typedef QMap<QString, QPointer<GitBranch> > BranchContainer;
 
 class GitRepository : public QObject
 {

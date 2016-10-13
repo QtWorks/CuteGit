@@ -6,8 +6,12 @@
 
 #include <git2/commit.h>
 
+QHash<GitOid, GitCommit*> GitCommit::m_commitPool;
 
 GitCommit::GitCommit(git_commit* raw, GitRepository* parent) : GitBase(raw, parent)
+  ,m_x(0)
+  ,m_y(0)
+  ,m_childrenCounter(0)
 {
     m_oid = GitOid(git_commit_id(m_raw), m_repository);
 }
@@ -18,16 +22,32 @@ GitCommit::GitCommit() : GitBase(nullptr, nullptr)
 
 GitCommit* GitCommit::fromOid(const GitOid& oid)
 {
-    if(!oid.isValid()) {
-        return nullptr;
-    }
+    if(!m_commitPool.contains(oid)) {
+        if(!oid.isValid()) {
+            return nullptr;
+        }
 
-    git_commit *commit;
-    if(git_commit_lookup(&commit, oid.repository()->raw(), oid.raw()) != 0) {
-        return nullptr;
-    }
+        git_commit *commit;
+        if(git_commit_lookup(&commit, oid.repository()->raw(), oid.raw()) != 0) {
+            return nullptr;
+        }
+        m_commitPool.insert(oid, new GitCommit(commit, oid.repository()));
+        qDebug() << "Uniq commit:" << QByteArray((const char*)(oid.raw()->id),GIT_OID_RAWSZ).toHex();
 
-    return new GitCommit(commit, oid.repository());
+        git_commit* parent = nullptr;
+        git_commit_parent(&parent, commit, 0);
+        if(parent != nullptr)
+        {
+            GitOid parentOid(git_commit_id(parent),oid.repository());
+            GitCommit* parentCommit = fromOid(parentOid);
+            m_commitPool[oid]->m_x = parentCommit->m_childrenCounter++;
+            m_commitPool[oid]->m_y = parentCommit->m_y + 1;
+            m_commitPool[oid]->m_childrenCounter = m_commitPool[oid]->m_x;
+        }
+    } else {
+//        qDebug() << "Return duplicate that in pool" << QByteArray((const char*)(oid.raw()->id),GIT_OID_RAWSZ).toHex();
+    }
+    return m_commitPool.value(oid, nullptr);
 }
 
 GitCommit::~GitCommit()
@@ -63,6 +83,11 @@ QString GitCommit::sha1() const
 QString GitCommit::shortSha1() const
 {
     return oid().toShorten();
+}
+
+bool GitCommit::isMerge() const
+{
+    return git_commit_parentcount(m_raw) > 1;
 }
 
 void GitCommit::setAuthor(QString author)

@@ -43,14 +43,31 @@ void GitHandler::open(const QString &path)
 
     BranchContainer &branches = repo->branches();
 
-//    foreach(GitBranch* branch, branches) {
-//        qDebug() << "Branch: " << branch->name();
-//        CommitModel* model = CommitModel::fromBranch(branch);
-//        m_commits.insert(model->head(), model);
-//    }
+    QMap<GitOid, GitBranch*> branchesSorted;
+    CommitModel* model = nullptr;
+//    CommitModel* model = CommitModel::fromBranch(branches.value("master"));
+//    m_commits.insert(model->head(), model);
+    foreach(GitBranch* branch, branches) {
+        branchesSorted.insert(branch->oid(), branch);
+//        if(m_commits.contains(branch->name())) {
+//            continue;
+//        }
 
-    CommitModel* model = CommitModel::fromBranch(branches.value("master"));
-    m_commits.insert(model->head(), model);
+//        model = CommitModel::fromBranch(branch);
+//        m_commits.insert(model->head(), model);
+    }
+
+    foreach(GitBranch* branch, branchesSorted) {
+        model = CommitModel::fromBranch(branch);
+        m_commits.insert(model->head(), model);
+    }
+
+
+    CommitModel* main = new CommitModel("main");
+    foreach (GitCommit* commitPtr, GitCommit::m_commitPool) {
+        main->add(commitPtr);
+    }
+    m_commits.insert("main", main);
     m_repositories->add(repo);
 }
 

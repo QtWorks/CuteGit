@@ -25,11 +25,15 @@ QString GitOid::toShorten() const
     return m_string.mid(0,9);
 }
 
-
 bool GitOid::operator ==(const GitOid& other) const
 {
-    return git_oid_equal(&m_oid, &(other.m_oid)) == 0
+    return git_oid_equal(&m_oid, &(other.m_oid)) == true
             && m_repository == other.m_repository;
+}
+
+bool GitOid::operator <(const GitOid& other) const
+{
+    return git_oid_cmp(raw(), other.raw()) < 0;
 }
 
 GitOid& GitOid::operator=(const GitOid& other)
