@@ -27,63 +27,42 @@ Item {
         }
     }
 
-//    Item {
-//        width:  childrenRect.width
-//        height: childrenRect.height
-//        anchors.right: parent.right
-//        Repeater {
-//            model: _handler.graph.points
-//            Rectangle {
-//                radius: 10
-//                x: model.modelData.x*(width+20)
-//                y: model.modelData.y*(height+10)
-//                width: 100
-//                height: 30
-//                color: "#"+model.modelData.color;
-//                MouseArea {
-//                    hoverEnabled: true
-//                    anchors.fill: parent
-//                    onEntered: {
-//                        parent.state = "full"
-//                    }
-//                    onExited: {
-//                        parent.state = "short"
-//                    }
-//                }
-//                Component.onCompleted: {
-//                    console.log("model.x: " + _handler.graph.points.length)
-//                }
-//            }
-//        }
-//    }
+    Flickable {
+        width: root.width/2
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        contentWidth: innerItem.width
+        contentHeight: innerItem.height
+        Canvas {
+            id: innerItem
+            width: root.width/2
+            property int elementWidth: 20
+            property int elementHeight: 20
+            height: _handler.graph.points.length*(elementWidth + 10)
+            onPaint: {
+                var ctx = getContext("2d")
+                for(var i = 0; i < _handler.graph.points.length; i++) {
+                    var point = _handler.graph.points[i]
 
-    Canvas {
-        property int elementWidth: 20
-        property int elementHeight: 20
-        width: parent.width/2
-        height: _handler.graph.points.length*(elementWidth + 10)
-        onPaint: {
-            var ctx = getContext("2d")
-            for(var i = 0; i < _handler.graph.points.length; i++) {
-                var point = _handler.graph.points[i]
-
-                ctx.beginPath()
-                ctx.fillStyle = "#"+point.color
-                ctx.roundedRect(point.x*(elementWidth + 10), point.y*(elementHeight + 10), elementWidth, elementHeight, elementWidth, elementHeight)
-                ctx.fill()
-                ctx.closePath()
-
-                var childPoints = point.childPoints
-
-                for(var j = 0; j < childPoints.length; j++) {
-                    var childPoint = childPoints[j]
                     ctx.beginPath()
-                    ctx.strokeStyle = "#"+point.color
-                    ctx.lineWidth = 2
-                    ctx.moveTo(point.x*(elementWidth + 10) + elementWidth/2, point.y*(elementHeight + 10) + elementHeight/2)
-                    ctx.lineTo(childPoint.x*(elementWidth + 10) + elementWidth/2, childPoint.y*(elementHeight + 10) + elementHeight/2)
-                    ctx.stroke()
+                    ctx.fillStyle = "#"+point.color
+                    ctx.roundedRect(point.x*(elementWidth + 10), point.y*(elementHeight + 10), elementWidth, elementHeight, elementWidth, elementHeight)
+                    ctx.fill()
                     ctx.closePath()
+
+                    var childPoints = point.childPoints
+
+                    for(var j = 0; j < childPoints.length; j++) {
+                        var childPoint = childPoints[j]
+                        ctx.beginPath()
+                        ctx.strokeStyle = "#"+point.color
+                        ctx.lineWidth = 2
+                        ctx.moveTo(point.x*(elementWidth + 10) + elementWidth/2, point.y*(elementHeight + 10) + elementHeight/2)
+                        ctx.lineTo(childPoint.x*(elementWidth + 10) + elementWidth/2, childPoint.y*(elementHeight + 10) + elementHeight/2)
+                        ctx.stroke()
+                        ctx.closePath()
+                    }
                 }
             }
         }
