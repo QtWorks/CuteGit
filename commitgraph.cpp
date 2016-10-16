@@ -13,9 +13,9 @@ CommitGraph::CommitGraph() : QObject()
 
 void CommitGraph::addHead(const GitOid &oid)
 {
-    int red = qrand()%205 + 50;
-    int green = qrand()%205 + 50;
-    int blue = qrand()%205 + 50;
+    int red = qrand() % 205 + 50;
+    int green = qrand() % 205 + 50;
+    int blue = qrand() % 205 + 50;
 
     m_color = QString::number(red, 16) + QString::number(green, 16) + QString::number(blue, 16);
     qDebug() << m_color;
@@ -34,7 +34,6 @@ void CommitGraph::addHead(const GitOid &oid)
         findParents(commit);
     }
 
-
     git_revwalk_free(walk);
 }
 
@@ -51,6 +50,9 @@ void CommitGraph::findParents(GitCommit* commit)
         qDebug() << "Add commit to reverselist" << parentOid.toString();
         commitRaw = nullptr;
         git_commit_parent(&commitRaw, commit->raw(), 0);
+        if(m_commits.contains(parentOid)) { //Finish parents lookup once parent found in tree. We will see nothing new in this branch
+            break;
+        }
     }
 
     if(reverseList.isEmpty()) {
@@ -65,26 +67,33 @@ void CommitGraph::addCommits(QList<GitOid>& reversList)
     GitCommit* commit;
 
     for(int i = 0; i < (reversList.count() - 1); i++) {
-        parent = m_commits.value(reversList[i], nullptr);
+        GitOid& parentIter = reversList[i];
+        GitOid& childIter = reversList[i + 1];
+        parent = m_commits.value(parentIter, nullptr);
         if(parent == nullptr) {
-            //Ony in case if i==0
-            parent = GitCommit::fromOid(reversList[i]);
+            //Ony in case if i == 0
+            parent = GitCommit::fromOid(parentIter);
             m_commits.insert(parent->oid(), parent);
             parent->m_color = m_color;
             m_fullList.push_back(parent);
         }
 
-        commit = m_commits.value(reversList[i+1], nullptr);
+        commit = m_commits.value(childIter, nullptr);
         if(commit == nullptr) {
-            commit = GitCommit::fromOid(reversList[i+1]);
+            commit = GitCommit::fromOid(childIter);
+
+            //ViewModelPart
             commit->m_x = parent->m_childrenCounter++;
             commit->m_childrenCounter = commit->m_x;
-            m_commits.insert(commit->oid(), commit);
             commit->m_color = m_color;
             if(commit->m_x == parent->m_x) { //TODO: Too dirty hack seems will not work with amount of commits more than 1
                 parent->m_color = commit->m_color;
             }
+            //End ViewModelPart
 
+            m_commits.insert(commit->oid(), commit);
+
+            //Ordered commits
             int parentPosition = m_fullList.indexOf(parent);
             if(parentPosition >= 0) {
                 m_fullList.insert(parentPosition + 1, commit);
