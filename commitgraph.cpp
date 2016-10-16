@@ -1,10 +1,12 @@
 #include "commitgraph.h"
 
+#include <gitcommit.h>
+#include <graphpoint.h>
+
+#include <QDateTime>
+
 #include <git2/revwalk.h>
 #include <git2/commit.h>
-
-#include <gitcommit.h>
-#include <QDateTime>
 
 CommitGraph::CommitGraph() : QObject()
 {
@@ -13,12 +15,11 @@ CommitGraph::CommitGraph() : QObject()
 
 void CommitGraph::addHead(const GitOid &oid)
 {
+    //Random color generation to be replaced with resets
     int red = qrand() % 205 + 50;
     int green = qrand() % 205 + 50;
     int blue = qrand() % 205 + 50;
-
     m_color = QString::number(red, 16) + QString::number(green, 16) + QString::number(blue, 16);
-    qDebug() << m_color;
 
     git_revwalk* walk;
     git_revwalk_new(&walk, oid.repository()->raw());
@@ -28,13 +29,17 @@ void CommitGraph::addHead(const GitOid &oid)
 
     git_oid newOid;
     while(git_revwalk_next(&newOid, walk) == 0) {
-        qDebug() << "Next commit parents";
         GitOid commitOid(&newOid, oid.repository());
         GitCommit *commit = GitCommit::fromOid(commitOid);
         findParents(commit);
     }
 
     git_revwalk_free(walk);
+
+    qDebug() << "Update Y coordinate after head added";
+    for(int i = 0; i < m_sortedPoints.count(); i++) {
+        static_cast<GraphPoint*>(m_sortedPoints.at(i))->setY(i);
+    }
 }
 
 void CommitGraph::findParents(GitCommit* commit)
@@ -47,15 +52,16 @@ void CommitGraph::findParents(GitCommit* commit)
         GitOid parentOid(git_commit_id(commitRaw), commit->repository());
         commit = GitCommit::fromOid(parentOid);
         reverseList.push_front(parentOid);
+        if(m_points.contains(parentOid)) { //Finish parents lookup once parent found in tree. We will see nothing new in this branch
+            break;
+        }
+
         qDebug() << "Add commit to reverselist" << parentOid.toString();
         commitRaw = nullptr;
         git_commit_parent(&commitRaw, commit->raw(), 0);
-        if(m_commits.contains(parentOid)) { //Finish parents lookup once parent found in tree. We will see nothing new in this branch
-            break;
-        }
     }
 
-    if(reverseList.isEmpty()) {
+    if(reverseList.count() < 2) { //In case if only original commit in list, we didn't find anything new
         return;
     }
     addCommits(reverseList);
@@ -63,43 +69,35 @@ void CommitGraph::findParents(GitCommit* commit)
 
 void CommitGraph::addCommits(QList<GitOid>& reversList)
 {
-    GitCommit* parent;
-    GitCommit* commit;
+    GraphPoint* point = nullptr;
+    GraphPoint* parentPoint = nullptr;
 
     for(int i = 0; i < (reversList.count() - 1); i++) {
         GitOid& parentIter = reversList[i];
         GitOid& childIter = reversList[i + 1];
-        parent = m_commits.value(parentIter, nullptr);
-        if(parent == nullptr) {
-            //Ony in case if i == 0
-            parent = GitCommit::fromOid(parentIter);
-            m_commits.insert(parent->oid(), parent);
-            parent->m_color = m_color;
-            m_fullList.push_back(parent);
+        parentPoint = m_points.value(parentIter, nullptr);
+        if(parentPoint == nullptr) {
+            parentPoint = new GraphPoint(parentIter, this);
+            parentPoint->setColor(m_color);
+            m_sortedPoints.append(parentPoint);
+            m_points.insert(parentPoint->oid(), parentPoint);
         }
 
-        commit = m_commits.value(childIter, nullptr);
-        if(commit == nullptr) {
-            commit = GitCommit::fromOid(childIter);
+        point = m_points.value(childIter, nullptr);
+        if(point == nullptr) {
+            int x = parentPoint->x() + parentPoint->childPointsCount();
+            point = new GraphPoint(childIter, x, 0, m_color, this);
+            parentPoint->addChildPoint(point);
 
-            //ViewModelPart
-            commit->m_x = parent->m_childrenCounter++;
-            commit->m_childrenCounter = commit->m_x;
-            commit->m_color = m_color;
-            if(commit->m_x == parent->m_x) { //TODO: Too dirty hack seems will not work with amount of commits more than 1
-                parent->m_color = commit->m_color;
-            }
-            //End ViewModelPart
-
-            m_commits.insert(commit->oid(), commit);
+            m_points.insert(point->oid(), point);
 
             //Ordered commits
-            int parentPosition = m_fullList.indexOf(parent);
+            int parentPosition = m_sortedPoints.indexOf(parentPoint);
             if(parentPosition >= 0) {
-                m_fullList.insert(parentPosition + 1, commit);
+                m_sortedPoints.insert(parentPosition + 1, point);
             }
-            qDebug() << "New commit: " << commit->sha1() << commit->x() << commit->y();
-            qDebug() << "Parent commit: " << parent->sha1() << parent->x() << parent->y();
+            qDebug() << "New commit: " << point->oid().toString() << point->x() << point->y();
+            qDebug() << "New commit: " << parentPoint->oid().toString() << parentPoint->x() << parentPoint->y();
         }
     }
 }

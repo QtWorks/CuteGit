@@ -3,27 +3,35 @@
 
 #include <QObject>
 
-#include <QString>
-#include <QHash>
 #include <gitoid.h>
 
+#include <QString>
+#include <QHash>
+#include <QObjectList>
+
 class GitCommit;
+class GraphPoint;
 
 class CommitGraph : public QObject
 {
+    Q_OBJECT
+    Q_PROPERTY(QList<QObject*> points READ points CONSTANT)
 public:
     CommitGraph();
     void addHead(const GitOid& oid);
 
-    QHash<GitOid, GitCommit*> m_commits;
-    QList<GitCommit*> m_fullList;
+    QList<QObject*> points() const {
+        return m_sortedPoints;
+    }
 
 private:
     void findParents(GitCommit *commit);
-
     void addCommits(QList<GitOid> &reversList);
 
     QString m_color;
+
+    QHash<GitOid, GraphPoint*> m_points;
+    QObjectList m_sortedPoints;
 };
 
 #endif // COMMITGRAPH_H

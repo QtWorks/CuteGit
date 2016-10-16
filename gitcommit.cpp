@@ -7,9 +7,6 @@
 #include <git2/commit.h>
 
 GitCommit::GitCommit(git_commit* raw, GitRepository* parent) : GitBase(raw, parent)
-  ,m_x(0)
-  ,m_y(0)
-  ,m_childrenCounter(0)
 {
     m_oid = GitOid(git_commit_id(m_raw), m_repository);
 }

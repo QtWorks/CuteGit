@@ -8,6 +8,8 @@
 #include <repositorymodel.h>
 #include <gitbranch.h>
 #include <commitmodel.h>
+#include <graphpoint.h>
+#include <commitgraph.h>
 
 #include <QDebug>
 
@@ -17,11 +19,13 @@ int main(int argc, char *argv[])
 
     QQuickView view;
 
-    qmlRegisterUncreatableType<GitHandler>("org.semlanik.nicegit", 1, 0, "GitHandler", "Global for qml");
+    qmlRegisterUncreatableType<CommitModel>("org.semlanik.nicegit", 1, 0, "CommitModel", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<CommitGraph>("org.semlanik.nicegit", 1, 0, "CommitGraph", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<GraphPoint>("org.semlanik.nicegit", 1, 0, "GraphPoint", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<RepositoryModel>("org.semlanik.nicegit", 1, 0, "RepositoryModel", "Owned only by GitHandler");
     qmlRegisterUncreatableType<GitRepository>("org.semlanik.nicegit", 1, 0, "GitRepository", "Owned only by GitHandler");
     qmlRegisterUncreatableType<GitBranch>("org.semlanik.nicegit", 1, 0, "GitRepository", "Owned only by GitHandler");
-    qmlRegisterUncreatableType<RepositoryModel>("org.semlanik.nicegit", 1, 0, "RepositoryModel", "Owned only by GitHandler");
-    qmlRegisterUncreatableType<CommitModel>("org.semlanik.nicegit", 1, 0, "CommitModel", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<GitHandler>("org.semlanik.nicegit", 1, 0, "GitHandler", "Global for qml");
 
 
     GitHandler handler;

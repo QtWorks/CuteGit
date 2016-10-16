@@ -10,6 +10,7 @@
 #include <git2.h>
 
 #include <commitgraph.h>
+#include <graphpoint.h>
 
 GitHandler::GitHandler() : QObject()
   ,m_repositories(new RepositoryModel(this))
@@ -52,16 +53,12 @@ void GitHandler::open(const QString &path)
         graph->addHead(branch->oid());
     }
 
-    foreach (GitCommit* commit, graph->m_fullList) {
-        qDebug() << commit->sha1();
-        commit->m_y = graph->m_fullList.indexOf(commit);
-    }
-
-    CommitModel* main = new CommitModel("main");
-    foreach (GitCommit* commitPtr, graph->m_commits) {
-        main->add(commitPtr);
-    }
-    m_commits.insert("main", main);
+    setGraph(graph);
+//    CommitModel* main = new CommitModel("main");
+//    foreach (GitCommit* commitPtr, graph->m_points) {
+//        main->add(commitPtr);
+//    }
+//    m_commits.insert("main", main);
     m_repositories->add(repo);
 }
 
