@@ -34,12 +34,35 @@ Item {
         anchors.right: parent.right
         contentWidth: innerItem.width
         contentHeight: innerItem.height
+        Column {
+            width: parent.width
+            spacing: 20
+            Repeater {
+                model: _handler.graph.points
+                Rectangle {
+                    width: parent.width
+                    height: innerItem.elementHeight
+                    color: textSelector.containsMouse ? "#9999ff" : "#009999ff"
+                    Text {
+                        anchors.fill: parent
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignRight
+                        text: model.modelData.sha1
+                    }
+                    MouseArea {
+                        id: textSelector
+                        anchors.fill: parent
+                        hoverEnabled: true
+                    }
+                }
+            }
+        }
         Canvas {
             id: innerItem
             width: root.width/2
             property int elementWidth: 20
             property int elementHeight: 20
-            height: _handler.graph.points.length*(elementWidth + 10)
+            height: _handler.graph.points.length*(elementWidth + 20)
             onPaint: {
                 var ctx = getContext("2d")
                 for(var i = 0; i < _handler.graph.points.length; i++) {
@@ -47,7 +70,7 @@ Item {
 
                     ctx.beginPath()
                     ctx.fillStyle = "#"+point.color
-                    ctx.roundedRect(point.x*(elementWidth + 10), point.y*(elementHeight + 10), elementWidth, elementHeight, elementWidth, elementHeight)
+                    ctx.roundedRect(point.x*(elementWidth + 20), point.y*(elementHeight + 20), elementWidth, elementHeight, elementWidth, elementHeight)
                     ctx.fill()
                     ctx.closePath()
 
@@ -56,10 +79,27 @@ Item {
                     for(var j = 0; j < childPoints.length; j++) {
                         var childPoint = childPoints[j]
                         ctx.beginPath()
-                        ctx.strokeStyle = "#"+point.color
+                        ctx.strokeStyle = "#" + childPoint.color
                         ctx.lineWidth = 2
-                        ctx.moveTo(point.x*(elementWidth + 10) + elementWidth/2, point.y*(elementHeight + 10) + elementHeight/2)
-                        ctx.lineTo(childPoint.x*(elementWidth + 10) + elementWidth/2, childPoint.y*(elementHeight + 10) + elementHeight/2)
+                        if(point.x !== childPoint.x) {
+                            if(point.x < childPoint.x) {
+                                ctx.moveTo(point.x*(elementWidth + 20) + elementWidth/2, childPoint.y*(elementHeight + 20) + elementHeight + 20)
+                                ctx.bezierCurveTo(
+                                                  point.x*(elementWidth + 20) + elementWidth/2, childPoint.y*(elementHeight + 20) + elementHeight,
+                                                  childPoint.x*(elementWidth + 20) + elementWidth/2, childPoint.y*(elementHeight + 20) + elementHeight + 20 + elementHeight/2,
+                                                  childPoint.x*(elementWidth + 20) + elementWidth/2, childPoint.y*(elementHeight + 20) + elementHeight/2)
+                            } else {
+                                ctx.moveTo(point.x*(elementWidth + 20) + elementWidth/2, point.y*(elementHeight + 20) + elementHeight/2)
+                                ctx.lineTo(point.x*(elementWidth + 20) + elementWidth/2, childPoint.y*(elementHeight + 20) + elementHeight + 20 + elementHeight)
+                                ctx.bezierCurveTo(
+                                                  point.x*(elementWidth + 20) + elementWidth/2, childPoint.y*(elementHeight + 20) + elementHeight/2,
+                                                  childPoint.x*(elementWidth + 20) + elementWidth/2, childPoint.y*(elementHeight + 20) + elementHeight + 20  + elementHeight/2,
+                                                  childPoint.x*(elementWidth + 20) + elementWidth/2, childPoint.y*(elementHeight + 20) + elementHeight/2)
+                            }
+                        } else {
+                            ctx.moveTo(point.x*(elementWidth + 20) + elementWidth/2, point.y*(elementHeight + 20) + elementHeight/2)
+                            ctx.lineTo(childPoint.x*(elementWidth + 20) + elementWidth/2, childPoint.y*(elementHeight + 20) + elementHeight/2)
+                        }
                         ctx.stroke()
                         ctx.closePath()
                     }

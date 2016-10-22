@@ -36,9 +36,33 @@ void CommitGraph::addHead(const GitOid &oid)
 
     git_revwalk_free(walk);
 
+    QList<GitOid> openedBranches;
     qDebug() << "Update Y coordinate after head added";
     for(int i = 0; i < m_sortedPoints.count(); i++) {
-        static_cast<GraphPoint*>(m_sortedPoints.at(i))->setY(i);
+        GraphPoint* point = static_cast<GraphPoint*>(m_sortedPoints.at(i));
+        point->setY(m_sortedPoints.count() - i - 1);
+        GitCommit *commit = GitCommit::fromOid(point->oid());
+        git_commit* commitRaw = nullptr;
+        int parentCount = git_commit_parentcount(commit->raw());
+        int minX = point->x();
+        for(int j = 0; j < parentCount; j++) {
+            git_commit_parent(&commitRaw, commit->raw(), j);
+            GitOid oidParent(git_commit_id(commitRaw), oid.repository());
+            GraphPoint* parentPoint = m_points.value(oidParent);
+
+            int x = parentPoint->x() + parentPoint->childPointsCount();
+
+            qDebug() << "MinX = " << minX << " x:" << x;
+            if(parentPoint->childPoints().indexOf(point) < 0) {
+                minX = x;
+//                if(x > minX) {
+//                }
+                point->setX(minX);
+            }
+            parentPoint->addChildPoint(point);
+        }
+        qDebug() << "New commit: " << point->oid().toString() << point->x() << point->y();
+        point->setX(minX);
     }
 }
 
@@ -56,7 +80,7 @@ void CommitGraph::findParents(GitCommit* commit)
             break;
         }
 
-        qDebug() << "Add commit to reverselist" << parentOid.toString();
+//        qDebug() << "Add commit to reverselist" << parentOid.toString();
         commitRaw = nullptr;
         git_commit_parent(&commitRaw, commit->raw(), 0);
     }
@@ -85,19 +109,19 @@ void CommitGraph::addCommits(QList<GitOid>& reversList)
 
         point = m_points.value(childIter, nullptr);
         if(point == nullptr) {
-            int x = parentPoint->x() + parentPoint->childPointsCount();
-            point = new GraphPoint(childIter, x, 0, m_color, this);
-            parentPoint->addChildPoint(point);
-
+            int parentPosition = m_sortedPoints.indexOf(parentPoint);
+//            int x = parentPoint->x() + parentPoint->childPointsCount();
+//            point = new GraphPoint(childIter, x, 0, m_color, this);
+            point = new GraphPoint(childIter, 0, 0, m_color, this);
             m_points.insert(point->oid(), point);
+//            parentPoint->addChildPoint(point);
 
             //Ordered commits
-            int parentPosition = m_sortedPoints.indexOf(parentPoint);
             if(parentPosition >= 0) {
                 m_sortedPoints.insert(parentPosition + 1, point);
             }
-            qDebug() << "New commit: " << point->oid().toString() << point->x() << point->y();
-            qDebug() << "New commit: " << parentPoint->oid().toString() << parentPoint->x() << parentPoint->y();
+//            qDebug() << "New commit: " << point->oid().toString() << point->x() << point->y();
+//            qDebug() << "New commit parent: " << parentPoint->oid().toString() << parentPoint->x() << parentPoint->y();
         }
     }
 }

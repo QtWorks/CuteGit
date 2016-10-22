@@ -11,6 +11,7 @@ class GraphPoint : public QObject
     Q_PROPERTY(int x READ x WRITE setX NOTIFY xChanged)
     Q_PROPERTY(int y READ y WRITE setY NOTIFY yChanged)
     Q_PROPERTY(QString color READ color WRITE setColor NOTIFY colorChanged)
+    Q_PROPERTY(QString sha1 READ sha1 CONSTANT)
     Q_PROPERTY(QList<QObject*> childPoints READ childPoints CONSTANT)
 
 public:
@@ -38,15 +39,17 @@ public:
         return m_commitOid;
     }
 
+    QString sha1() const
+    {
+        return m_commitOid.toString();
+    }
+
     int childPointsCount() const
     {
         return m_childPoints.count();
     }
 
-    void addChildPoint(GraphPoint* point)
-    {
-        m_childPoints.append(point);
-    }
+    void addChildPoint(GraphPoint* point);
 
     QList<QObject*> childPoints() const
     {

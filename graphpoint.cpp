@@ -50,3 +50,10 @@ void GraphPoint::setColor(const QString& color)
     emit colorChanged(color);
 }
 
+void GraphPoint::addChildPoint(GraphPoint* point)
+{
+    if(m_childPoints.indexOf(point) < 0) {
+        m_childPoints.append(point);
+    }
+}
+
