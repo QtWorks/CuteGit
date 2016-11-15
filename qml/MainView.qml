@@ -38,7 +38,7 @@ Item {
             width: parent.width
             spacing: 20
             Repeater {
-                model: _handler.graph.points
+                model: _handler.graph.points.length
                 Rectangle {
                     width: parent.width
                     height: innerItem.elementHeight
@@ -47,7 +47,7 @@ Item {
                         anchors.fill: parent
                         verticalAlignment: Text.AlignVCenter
                         horizontalAlignment: Text.AlignRight
-                        text: model.modelData.sha1
+                        text: _handler.graph.points[_handler.graph.points.length - model.index - 1].sha1
                     }
                     MouseArea {
                         id: textSelector
