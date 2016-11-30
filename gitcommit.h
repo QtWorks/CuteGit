@@ -2,6 +2,7 @@
 #define GITCOMMIT_H
 
 #include <gitbase.h>
+#include <gittag.h>
 
 #include <QDateTime>
 #include <QString>
@@ -19,6 +20,7 @@ class GitCommit : public GitBase<git_commit>
     Q_PROPERTY(QString sha1 READ sha1 NOTIFY commitChanged)
     Q_PROPERTY(QString shortSha1 READ shortSha1 NOTIFY commitChanged)
     Q_PROPERTY(bool isMerge READ isMerge NOTIFY commitChanged)
+    Q_PROPERTY(QString body READ body NOTIFY bodyChanged)
 
 public:
     GitCommit(git_commit* raw, GitRepository* parent);
@@ -33,6 +35,7 @@ public:
     QString sha1() const;
     QString shortSha1() const;
     bool isMerge() const;
+    QString body();
 
 public slots:
     void setAuthor(QString author);
@@ -43,6 +46,8 @@ public slots:
 signals:
     void commitChanged();
 
+    void bodyChanged(QString body);
+
 private:
     GitCommit();
 
@@ -50,6 +55,7 @@ private:
     QDateTime m_time;
     QString m_message;
     QString m_email;
+    QString m_body;
 };
 
 #endif // GITCOMMIT_H

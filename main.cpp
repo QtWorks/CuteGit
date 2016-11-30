@@ -10,6 +10,7 @@
 #include <commitmodel.h>
 #include <graphpoint.h>
 #include <commitgraph.h>
+#include <gittag.h>
 
 #include <QDebug>
 
@@ -26,6 +27,7 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<GitRepository>("org.semlanik.nicegit", 1, 0, "GitRepository", "Owned only by GitHandler");
     qmlRegisterUncreatableType<GitBranch>("org.semlanik.nicegit", 1, 0, "GitRepository", "Owned only by GitHandler");
     qmlRegisterUncreatableType<GitHandler>("org.semlanik.nicegit", 1, 0, "GitHandler", "Global for qml");
+    qmlRegisterUncreatableType<GitTag>("org.semlanik.nicegit", 1, 0, "GitTag", "Global for qml");
 
 
     GitHandler handler;

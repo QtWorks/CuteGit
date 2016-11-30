@@ -13,6 +13,8 @@ class GraphPoint : public QObject
     Q_PROPERTY(QString color READ color WRITE setColor NOTIFY colorChanged)
     Q_PROPERTY(QString sha1 READ sha1 CONSTANT)
     Q_PROPERTY(QList<QObject*> childPoints READ childPoints CONSTANT)
+    Q_PROPERTY(QString tag READ tag CONSTANT)
+    Q_PROPERTY(QString branch READ branch CONSTANT)
 
 public:
     GraphPoint(const GitOid& commitOid, QObject* parent = 0);
@@ -49,17 +51,37 @@ public:
         return m_childPoints.count();
     }
 
-    void addChildPoint(GraphPoint* point);
+    bool addChildPoint(GraphPoint* point);
 
     QList<QObject*> childPoints() const
     {
         return m_childPoints;
     }
 
+    QString tag() const
+    {
+        return m_tag;
+    }
+
+    QString branch() const
+    {
+        return m_branch;
+    }
+
 public slots:
     void setX(int x);
     void setY(int y);
     void setColor(const QString& color);
+
+    void setTag(QString tag)
+    {
+        m_tag = tag;
+    }
+
+    void setBranch(QString branch)
+    {
+        m_branch = branch;
+    }
 
 signals:
     void xChanged(int x);
@@ -73,6 +95,8 @@ private:
     int m_x;
     int m_y;
     QString m_color;
+    QString m_tag;
+    QString m_branch;
 };
 
 #endif // GRAPTHPOINT_H

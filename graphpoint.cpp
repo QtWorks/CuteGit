@@ -50,10 +50,20 @@ void GraphPoint::setColor(const QString& color)
     emit colorChanged(color);
 }
 
-void GraphPoint::addChildPoint(GraphPoint* point)
+bool GraphPoint::addChildPoint(GraphPoint* point)
 {
+    bool orderChanged = false;
     if(m_childPoints.indexOf(point) < 0) {
+        if(point->x() < x()) {
+            for(int i = 0; i < m_childPoints.count(); i++) {
+                GraphPoint* child = static_cast<GraphPoint*>(m_childPoints.at(i));
+                child->setX(child->x() + 1);
+            }
+            orderChanged = true;
+        }
         m_childPoints.append(point);
     }
+
+    return orderChanged;
 }
 

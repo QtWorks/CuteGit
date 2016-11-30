@@ -7,6 +7,7 @@
 #include <gitrepository.h>
 #include <gitbranch.h>
 #include <commitmodel.h>
+#include <tagmodel.h>
 #include <git2.h>
 
 #include <commitgraph.h>
@@ -50,15 +51,10 @@ void GitHandler::open(const QString &path)
     graph->addHead(branches.value("master").data()->oid());
     foreach(GitBranch* branch, branches) {
         qDebug() << "Next head " << branch->name();
-        graph->addHead(branch->oid());
+        graph->addHead(branch);
     }
 
     setGraph(graph);
-//    CommitModel* main = new CommitModel("main");
-//    foreach (GitCommit* commitPtr, graph->m_points) {
-//        main->add(commitPtr);
-//    }
-//    m_commits.insert("main", main);
     m_repositories->add(repo);
 }
 

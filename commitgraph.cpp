@@ -1,9 +1,13 @@
 #include "commitgraph.h"
 
 #include <gitcommit.h>
+#include <gitbranch.h>
+#include <gittag.h>
+
 #include <graphpoint.h>
 
 #include <QDateTime>
+#include <QScopedPointer>
 
 #include <git2/revwalk.h>
 #include <git2/commit.h>
@@ -11,6 +15,13 @@
 CommitGraph::CommitGraph() : QObject()
 {
     qsrand(QDateTime::currentMSecsSinceEpoch());
+}
+
+void CommitGraph::addHead(GitBranch* branch)
+{
+    const GitOid& oid = branch->oid();
+    addHead(oid);
+    m_points[oid]->setBranch(branch->name());
 }
 
 void CommitGraph::addHead(const GitOid &oid)
@@ -32,24 +43,60 @@ void CommitGraph::addHead(const GitOid &oid)
         GitOid commitOid(&newOid, oid.repository());
         GitCommit *commit = GitCommit::fromOid(commitOid);
         findParents(commit);
+        delete commit;
     }
 
     git_revwalk_free(walk);
 
-    qDebug() << "Update Y coordinate after head added";
+//    qDebug() << "Update Y coordinate after head added";
+    QList<int> branchStarted;
     for(int i = 0; i < m_sortedPoints.count(); i++) {
         GraphPoint* point = static_cast<GraphPoint*>(m_sortedPoints.at(i));
         point->setY(m_sortedPoints.count() - i - 1);
         GitCommit *commit = GitCommit::fromOid(point->oid());
         git_commit* commitRaw = nullptr;
+        QPointer<GitTag> tag = commit->repository()->tags().value(commit->oid());
+        if(!tag.isNull()) {
+            point->setTag(tag.data()->name());
+        }
         int parentCount = git_commit_parentcount(commit->raw());
+        delete commit;
+//        qDebug() << "New commit: " << point->oid().toString() << point->x() << point->y();
         for(int j = 0; j < parentCount; j++) {//Add connection to parent in case if count of parents > 1
             git_commit_parent(&commitRaw, commit->raw(), j);
             GitOid oidParent(git_commit_id(commitRaw), oid.repository());
             GraphPoint* parentPoint = m_points.value(oidParent);
-            parentPoint->addChildPoint(point);
+            bool rearrangmentRequired = parentPoint->addChildPoint(point);
+            Q_UNUSED(rearrangmentRequired)
+//            if(rearrangmentRequired) { //TODO: need to investigate how to avoid croses on branches
+                                         //in case of while addChildPoint operations we have conflict
+                                         //with logic bellow
+//                i = m_sortedPoints.indexOf(parentPoint) - 1;
+//                break;
+//            }
+
+            //This logic denie to produce branches that are on the same 'x' line with other branches
+            //that are active at this time. The loop bellow finds free 'x' line to use it for branch
+            //allocation.
+            if(parentPoint->x() < point->x()) {
+                bool contains = false;
+                while(branchStarted.contains(point->x())) {
+                    contains = true;
+                    point->setX(point->x() + 1);
+                }
+                if(!contains) {
+                    branchStarted.append(point->x());
+                }
+            //Once branch is merged to another branch or ends "in the air" this logic releases branch
+            //line and provides possibility to use freed 'x' for other branches.
+            } else if(parentPoint->x() > point->x()) {
+                branchStarted.removeAll(parentPoint->x());
+            }
+
+            if( point->childPoints().count() <= 0) {
+                branchStarted.removeAll(point->x());
+            }
         }
-        qDebug() << "New commit: " << point->oid().toString() << point->x() << point->y();
     }
 }
 
@@ -112,4 +159,20 @@ void CommitGraph::addCommits(QList<GitOid>& reversList)
             parentPoint->addChildPoint(point);
         }
     }
+}
+
+QString CommitGraph::commitData(GraphPoint *point) const
+{
+    if(point == nullptr) {
+        return QString();
+    }
+
+    QScopedPointer<GitCommit> commit(GitCommit::fromOid(point->oid()));
+    if(!commit.data()->isValid()) {
+        return QString();
+    }
+
+    return commit.data()->body();
+
+
 }

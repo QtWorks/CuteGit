@@ -11,6 +11,7 @@
 
 class GitCommit;
 class GraphPoint;
+class GitBranch;
 
 class CommitGraph : public QObject
 {
@@ -18,12 +19,16 @@ class CommitGraph : public QObject
     Q_PROPERTY(QList<QObject*> points READ points CONSTANT)
 public:
     CommitGraph();
+    void addHead(GitBranch* branch);
     void addHead(const GitOid& oid);
 
     QList<QObject*> points() const {
         return m_sortedPoints;
     }
 
+    //TODO: move this functionality to more proper place;
+    Q_INVOKABLE QString commitData(GraphPoint* point) const;
+    //TODO: move this functionality to more proper place;
 private:
     void findParents(GitCommit *commit);
     void addCommits(QList<GitOid> &reversList);

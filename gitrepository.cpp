@@ -6,6 +6,7 @@
 
 #include <gitbranch.h>
 #include <gitcommit.h>
+#include <gittag.h>
 
 #include <git2.h>
 
@@ -22,6 +23,7 @@ GitRepository::GitRepository(const QString& root) : QObject(nullptr)
     m_name = m_path;//TODO: replace with Human readable name
     qDebug() << "New repo:" << m_name << m_root << m_path;
     readBranches();
+    readTags();
 }
 
 GitRepository::~GitRepository()
@@ -50,5 +52,30 @@ void GitRepository::readBranches()
         qDebug() << branch->name();
         qDebug() << branch->type();
     }
+}
+
+void GitRepository::readTags()
+{
+    git_tag_foreach(
+                raw(),
+                [](const char *name, git_oid *oid, void *payload) -> int
+    {
+        Q_UNUSED(payload)
+        Q_UNUSED(name)
+
+        GitRepository* repo = static_cast<GitRepository*>(payload);
+        git_tag* tagraw = 0;
+        if(git_tag_lookup(&tagraw, repo->raw(), oid) != 0) {
+            qCritical() << "Invalid tag found. Broken repository";
+            return 1;
+        }
+        GitTag* tag = new GitTag(tagraw, repo);
+        if(tag->isValid()) {
+            repo->m_tags.insert(tag->targetId(), tag);
+        }
+        qDebug() << "Tag found: " << tag->name() << tag->sha1();
+        return 0;
+    },
+    this);
 }
 

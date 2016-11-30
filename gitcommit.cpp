@@ -5,6 +5,10 @@
 #include <QDebug>
 
 #include <git2/commit.h>
+#include <git2/tag.h>
+#include <git2/diff.h>
+#include <git2/patch.h>
+#include <git2/buffer.h>
 
 GitCommit::GitCommit(git_commit* raw, GitRepository* parent) : GitBase(raw, parent)
 {
@@ -67,6 +71,44 @@ QString GitCommit::shortSha1() const
 bool GitCommit::isMerge() const
 {
     return git_commit_parentcount(m_raw) > 1;
+}
+
+QString GitCommit::body()
+{
+    if(isMerge()) {
+        return QString("Commit - merge");
+    }
+
+
+    if(m_body.isEmpty() || m_body.isNull()) {
+        git_commit *parent = nullptr;
+        git_commit_parent(&parent, raw(), 0);
+
+        git_tree *commit_tree = nullptr, *parent_tree = nullptr;
+        git_commit_tree(&commit_tree, raw());
+        git_commit_tree(&parent_tree, parent);
+
+        git_diff *diff = nullptr;
+        git_diff_tree_to_tree(
+                    &diff, repository()->raw()  , parent_tree, commit_tree, nullptr);
+
+
+       git_diff_print(diff,
+                      GIT_DIFF_FORMAT_PATCH,
+                        [](const git_diff_delta *delta, /**< delta that contains this data */
+                      const git_diff_hunk *hunk,   /**< hunk containing this data */
+                      const git_diff_line *line,   /**< line data */
+                      void *payload)->int
+        {
+           qDebug() << "GIT_DELTA_ADDED" << delta->status;
+//           qDebug() << hunk->new_lines;
+//           qDebug() << hunk->old_lines;
+//            qDebug() << line->new_lineno;
+            return 0;
+        }, this);
+//        m_body = QString::fromUtf8(git_diff_(raw()));
+    }
+    return m_body;
 }
 
 void GitCommit::setAuthor(QString author)

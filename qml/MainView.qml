@@ -34,29 +34,6 @@ Item {
         anchors.right: parent.right
         contentWidth: innerItem.width
         contentHeight: innerItem.height
-        Column {
-            width: parent.width
-            spacing: 20
-            Repeater {
-                model: _handler.graph.points.length
-                Rectangle {
-                    width: parent.width
-                    height: innerItem.elementHeight
-                    color: textSelector.containsMouse ? "#9999ff" : "#009999ff"
-                    Text {
-                        anchors.fill: parent
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignRight
-                        text: _handler.graph.points[_handler.graph.points.length - model.index - 1].sha1
-                    }
-                    MouseArea {
-                        id: textSelector
-                        anchors.fill: parent
-                        hoverEnabled: true
-                    }
-                }
-            }
-        }
         Canvas {
             id: innerItem
             width: root.width/2
@@ -95,6 +72,7 @@ Item {
                                                   point.x*(elementWidth + 20) + elementWidth/2, childPoint.y*(elementHeight + 20) + elementHeight/2,
                                                   childPoint.x*(elementWidth + 20) + elementWidth/2, childPoint.y*(elementHeight + 20) + elementHeight + 20  + elementHeight/2,
                                                   childPoint.x*(elementWidth + 20) + elementWidth/2, childPoint.y*(elementHeight + 20) + elementHeight/2)
+//                                ctx.lineTo(childPoint.x*(elementWidth + 20) + elementWidth/2, childPoint.y*(elementHeight + 20) + elementHeight/2)
                             }
                         } else {
                             ctx.moveTo(point.x*(elementWidth + 20) + elementWidth/2, point.y*(elementHeight + 20) + elementHeight/2)
@@ -102,6 +80,50 @@ Item {
                         }
                         ctx.stroke()
                         ctx.closePath()
+                    }
+                }
+            }
+        }
+        Column {
+            width: parent.width
+            spacing: 20
+            Repeater {
+                model: _handler.graph.points.length
+                Rectangle {
+                    width: parent.width
+                    height: innerItem.elementHeight
+                    color: textSelector.containsMouse ? "#9999ff" : "#009999ff"
+                    property QtObject graphPointData: _handler.graph.points[_handler.graph.points.length - model.index - 1]
+                    Text {
+                        anchors.fill: parent
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignRight
+                        text: graphPointData.sha1
+                        color: "e95f8cf36d49d7f5c084d8c17bc791170739917e" === graphPointData.sha1 ?
+                                   "red" : "black"
+                    }
+                    Row {
+                        anchors.left: parent.left
+                        Text {
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignLeft
+                            text: graphPointData.branch
+                        }
+                        Text {
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignLeft
+                            text: graphPointData.tag
+                        }
+                    }
+
+                    MouseArea {
+                        id: textSelector
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: {
+                            commitBody.visible = true
+                            commitBodyText.text = _handler.graph.commitData(graphPointData)
+                        }
                     }
                 }
             }
@@ -115,6 +137,26 @@ Item {
         selectMultiple: false
         onAccepted: {
             _handler.open(repoOpenDialog.fileUrl)
+        }
+    }
+
+    Rectangle {
+        id: commitBody
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        width: parent.width/2
+        color: "white"
+        visible: false
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                commitBody.visible = false;
+            }
+        }
+        Text {
+            id: commitBodyText
+            anchors.fill: parent
         }
     }
 }

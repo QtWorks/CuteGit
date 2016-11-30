@@ -17,7 +17,10 @@ SOURCES += \
     commitmodel.cpp \
     universallistmodel.cpp \
     commitgraph.cpp \
-    graphpoint.cpp
+    graphpoint.cpp \
+    gittag.cpp \
+    tagmodel.cpp \
+    gitdiff.cpp
 
 HEADERS += \
     githandler.h \
@@ -31,7 +34,10 @@ HEADERS += \
     commitmodel.h \
     universallistmodel.h \
     commitgraph.h \
-    graphpoint.h
+    graphpoint.h \
+    gittag.h \
+    tagmodel.h \
+    gitdiff.h
 
 RESOURCES += \
     resources.qrc

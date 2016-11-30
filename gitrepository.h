@@ -6,10 +6,16 @@
 #include <QMap>
 #include <QPointer>
 
+#include <gitoid.h>
+
 struct git_repository;
 
 class GitBranch;
+class GitTag;
+struct git_oid;
+
 typedef QMap<QString, QPointer<GitBranch> > BranchContainer;
+typedef QMap<GitOid, QPointer<GitTag> > TagContainer;
 
 class GitRepository : public QObject
 {
@@ -46,6 +52,10 @@ public:
         return m_branches;
     }
 
+    TagContainer& tags() {
+        return m_tags;
+    }
+
 
 public slots:
     void setRoot(QString root) {
@@ -71,6 +81,7 @@ signals:
 private:
     void close();
     void readBranches();
+    void readTags();
 
     QString m_root;
     QString m_name;
@@ -78,6 +89,7 @@ private:
     git_repository* m_raw;
 
     BranchContainer m_branches;
+    TagContainer m_tags;
 };
 
 #endif // GITREPOSITORY_H
