@@ -12,11 +12,13 @@
 class GitCommit;
 class GraphPoint;
 class GitBranch;
+class GitDiff;
 
 class CommitGraph : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QList<QObject*> points READ points CONSTANT)
+    Q_PROPERTY(int branchesCount READ branchesCount NOTIFY branchesCountChanged)
 public:
     CommitGraph();
     void addHead(GitBranch* branch);
@@ -26,9 +28,14 @@ public:
         return m_sortedPoints;
     }
 
-    //TODO: move this functionality to more proper place;
-    Q_INVOKABLE QString commitData(GraphPoint* point) const;
-    //TODO: move this functionality to more proper place;
+    int branchesCount() const
+    {
+        return m_branchesCount;
+    }
+
+signals:
+    void branchesCountChanged(int branchesCount);
+
 private:
     void findParents(GitCommit *commit);
     void addCommits(QList<GitOid> &reversList);
@@ -37,6 +44,7 @@ private:
 
     QHash<GitOid, GraphPoint*> m_points;
     QObjectList m_sortedPoints;
+    int m_branchesCount;
 };
 
 #endif // COMMITGRAPH_H

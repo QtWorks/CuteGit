@@ -6,6 +6,7 @@
 
 #include <gitrepository.h>
 #include <gitbranch.h>
+#include <gitdiff.h>
 #include <commitmodel.h>
 #include <tagmodel.h>
 #include <git2.h>
@@ -15,6 +16,7 @@
 
 GitHandler::GitHandler() : QObject()
   ,m_repositories(new RepositoryModel(this))
+  ,m_activeDiff(nullptr)
 {
     git_libgit2_init();
 }
@@ -39,13 +41,13 @@ void GitHandler::open(const QString &path)
         return;
     }
 
-    GitRepository* repo = new GitRepository(QString::fromUtf8(root.ptr, root.size));
-    if(!repo->isValid()) {
+    m_activeRepo = new GitRepository(QString::fromUtf8(root.ptr, root.size));
+    if(!m_activeRepo->isValid()) {
         qDebug() << lastError();
         return;
     }
 
-    BranchContainer &branches = repo->branches();
+    BranchContainer &branches = m_activeRepo->branches();
 
     CommitGraph* graph = new CommitGraph();
     graph->addHead(branches.value("master").data()->oid());
@@ -55,14 +57,9 @@ void GitHandler::open(const QString &path)
     }
 
     setGraph(graph);
-    m_repositories->add(repo);
+    m_commits = CommitModel::fromGraph(graph);
+    m_repositories->add(m_activeRepo);
 }
-
-CommitModel* GitHandler::modelByHead(const QString& head)
-{
-    return m_commits.value(head).data();
-}
-
 
 QString GitHandler::lastError() const
 {
@@ -73,4 +70,30 @@ QString GitHandler::lastError() const
     }
     giterr_clear();
     return QString();
+}
+
+GitDiff* GitHandler::diff(GitCommit* a, GitCommit* b)
+{
+    if(!m_activeDiff.isNull()) {
+        m_activeDiff->deleteLater();
+    }
+
+    Q_ASSERT_X(a->repository() == b->repository(), "GitHandler", "Cross repository diff requested");
+
+    m_activeDiff = new GitDiff(a->raw(), b->raw(), a->repository());
+    return m_activeDiff.data();
+}
+
+void GitHandler::setActiveDiff(GitDiff* activeDiff)
+{
+    if (m_activeDiff == activeDiff)
+        return;
+
+    m_activeDiff = activeDiff;
+    emit activeDiffChanged(activeDiff);
+}
+
+GitDiff* GitHandler::activeDiff() const
+{
+    return m_activeDiff.data();
 }

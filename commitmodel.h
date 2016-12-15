@@ -6,6 +6,8 @@
 
 //GitBranch;
 
+class CommitGraph;
+
 class CommitModel : public UniversalListModel<GitCommit>
 {
     Q_OBJECT
@@ -14,6 +16,7 @@ public:
     CommitModel(const QString& head, QObject* parent = 0);
 
     static CommitModel* fromBranch(GitBranch* branch);
+    static CommitModel* fromGraph(CommitGraph* graph);
     QString head() const
     {
         return m_head;

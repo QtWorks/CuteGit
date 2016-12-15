@@ -12,6 +12,8 @@ struct git_repository;
 
 class GitBranch;
 class GitTag;
+class GitDiff;
+class GitCommit;
 struct git_oid;
 
 typedef QMap<QString, QPointer<GitBranch> > BranchContainer;
@@ -55,7 +57,6 @@ public:
     TagContainer& tags() {
         return m_tags;
     }
-
 
 public slots:
     void setRoot(QString root) {

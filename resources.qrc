@@ -1,5 +1,30 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/MainView.qml</file>
+        <file>fonts/Inconsolata.otf</file>
+        <file>qml/Graph.qml</file>
+        <file>qml/CommitList.qml</file>
+        <file>qml/DiffFiles.qml</file>
+        <file>images/x-mark-3-48.png</file>
+        <file>images/x-mark-3-48_active.png</file>
+        <file>images/x-mark-3-24_active.png</file>
+        <file>images/x-mark-3-24.png</file>
+        <file>qml/TopBar.qml</file>
+        <file>qml/FlickPager.qml</file>
+        <file>images/arrow-141-24_active.png</file>
+        <file>images/arrow-141-24.png</file>
+        <file>images/arrow-204-24_active.png</file>
+        <file>images/arrow-204-24.png</file>
+        <file>qml/FlickPagerArrow.qml</file>
+        <file>images/arrow-141-16_active.png</file>
+        <file>images/arrow-141-16.png</file>
+        <file>images/arrow-204-16_active.png</file>
+        <file>images/arrow-204-16.png</file>
+        <file>qml/AreaPlaceholder.qml</file>
+        <file>qml/CommitPlane.qml</file>
+        <file>qml/CommitInfo.qml</file>
+        <file>qml/CommitInfoLine.qml</file>
+        <file>images/arrow-203-16_active.png</file>
+        <file>images/arrow-203-16.png</file>
     </qresource>
 </RCC>

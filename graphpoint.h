@@ -51,8 +51,6 @@ public:
         return m_childPoints.count();
     }
 
-    bool addChildPoint(GraphPoint* point);
-
     QList<QObject*> childPoints() const
     {
         return m_childPoints;
@@ -67,6 +65,8 @@ public:
     {
         return m_branch;
     }
+
+    bool addChildPoint(GraphPoint* point);
 
 public slots:
     void setX(int x);

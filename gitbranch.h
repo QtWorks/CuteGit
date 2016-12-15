@@ -6,8 +6,6 @@
 
 struct git_oid;
 
-class CommitModel;
-
 class GitBranch : public GitReference
 {
     Q_OBJECT
@@ -27,6 +25,7 @@ public:
     QString name() const {
         return m_name;
     }
+
     BranchType type() const;
 
 public slots:
@@ -40,7 +39,6 @@ public slots:
 
 signals:
     void nameChanged(QString name);
-    void commitsChanged(CommitModel* commits);
 
 private:
     void free();

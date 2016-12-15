@@ -3,6 +3,9 @@
 #include <gitbranch.h>
 #include <git2/revwalk.h>
 
+#include <commitgraph.h>
+#include <graphpoint.h>
+
 CommitModel::CommitModel(const QString &head, QObject* parent) : UniversalListModel(parent)
   ,m_head(head)
 {
@@ -31,4 +34,20 @@ CommitModel* CommitModel::fromBranch(GitBranch* branch)
 
     git_revwalk_free(walk);
     return tmpModel;
+}
+
+CommitModel* CommitModel::fromGraph(CommitGraph *graph)
+{
+    CommitModel* model = new CommitModel("HEAD");
+    QList<QObject*> points = graph->points();
+    for(int i = 0; i < points.count(); i++) {
+        GraphPoint* point = static_cast<GraphPoint*>(points.at(i));
+        model->m_container.prepend(GitCommit::fromOid(point->oid()));
+//        QPointer<GitTag> tag = commit->repository()->tags().value(commit->oid());
+//        if(!tag.isNull()) {
+//            point->setTag(tag.data()->name());
+//        }
+    }
+
+    return model;
 }

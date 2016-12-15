@@ -13,6 +13,7 @@
 #include <git2/commit.h>
 
 CommitGraph::CommitGraph() : QObject()
+  ,m_branchesCount(0)
 {
     qsrand(QDateTime::currentMSecsSinceEpoch());
 }
@@ -55,10 +56,6 @@ void CommitGraph::addHead(const GitOid &oid)
         point->setY(m_sortedPoints.count() - i - 1);
         GitCommit *commit = GitCommit::fromOid(point->oid());
         git_commit* commitRaw = nullptr;
-        QPointer<GitTag> tag = commit->repository()->tags().value(commit->oid());
-        if(!tag.isNull()) {
-            point->setTag(tag.data()->name());
-        }
         int parentCount = git_commit_parentcount(commit->raw());
         delete commit;
 //        qDebug() << "New commit: " << point->oid().toString() << point->x() << point->y();
@@ -97,7 +94,9 @@ void CommitGraph::addHead(const GitOid &oid)
                 branchStarted.removeAll(point->x());
             }
         }
+        m_branchesCount = m_branchesCount < (point->x() + 1) ? (point->x() + 1) : m_branchesCount;
     }
+    emit branchesCountChanged(m_branchesCount);
 }
 
 void CommitGraph::findParents(GitCommit* commit)
@@ -159,20 +158,4 @@ void CommitGraph::addCommits(QList<GitOid>& reversList)
             parentPoint->addChildPoint(point);
         }
     }
-}
-
-QString CommitGraph::commitData(GraphPoint *point) const
-{
-    if(point == nullptr) {
-        return QString();
-    }
-
-    QScopedPointer<GitCommit> commit(GitCommit::fromOid(point->oid()));
-    if(!commit.data()->isValid()) {
-        return QString();
-    }
-
-    return commit.data()->body();
-
-
 }

@@ -29,9 +29,10 @@ public:
     QHash<int, QByteArray> roleNames() const {
         if(s_roleNames.isEmpty()) {
             int propertyCount = T::staticMetaObject.propertyCount();
-            for(int i = 0; i < propertyCount; i++) {
+            for(int i = 1; i < propertyCount; i++) {
                 s_roleNames.insert(Qt::UserRole + i, T::staticMetaObject.property(i).name());
             }
+            s_roleNames[propertyCount] = "modelData";
         }
         return s_roleNames;
     }
@@ -45,6 +46,10 @@ public:
         }
 
         T* dataPtr = m_container.at(row).data();
+
+        if(s_roleNames.value(role) == "modelData") {
+            return QVariant::fromValue(dataPtr);
+        }
         return dataPtr->property(s_roleNames.value(role));
     }
 
@@ -85,7 +90,9 @@ public:
 protected:
     void clear() {
         foreach (const QPointer<T>& value, m_container) {
-            delete value.data();
+            if(!value.isNull()) {
+                delete value.data();
+            }
         }
         m_container.clear();
     }

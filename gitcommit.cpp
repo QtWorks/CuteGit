@@ -1,6 +1,7 @@
 #include "gitcommit.h"
 
 #include <gitoid.h>
+#include <gitdiff.h>
 
 #include <QDebug>
 
@@ -11,6 +12,7 @@
 #include <git2/buffer.h>
 
 GitCommit::GitCommit(git_commit* raw, GitRepository* parent) : GitBase(raw, parent)
+  ,m_diff(nullptr)
 {
     m_oid = GitOid(git_commit_id(m_raw), m_repository);
 }
@@ -45,7 +47,7 @@ QString GitCommit::author() const
 
 QDateTime GitCommit::time() const
 {
-    return QDateTime::fromMSecsSinceEpoch(git_commit_time(m_raw));
+    return QDateTime::fromTime_t(git_commit_time(m_raw), Qt::OffsetFromUTC, git_commit_time_offset(m_raw));
 }
 
 QString GitCommit::message() const
@@ -73,42 +75,24 @@ bool GitCommit::isMerge() const
     return git_commit_parentcount(m_raw) > 1;
 }
 
-QString GitCommit::body()
+QString GitCommit::summary() const
+{
+    return QString(git_commit_summary(m_raw));
+}
+
+GitDiff* GitCommit::diff()
 {
     if(isMerge()) {
-        return QString("Commit - merge");
+        return nullptr;//QString("Commit - merge");
     }
 
-
-    if(m_body.isEmpty() || m_body.isNull()) {
+    if(m_diff.isNull()) {
         git_commit *parent = nullptr;
         git_commit_parent(&parent, raw(), 0);
-
-        git_tree *commit_tree = nullptr, *parent_tree = nullptr;
-        git_commit_tree(&commit_tree, raw());
-        git_commit_tree(&parent_tree, parent);
-
-        git_diff *diff = nullptr;
-        git_diff_tree_to_tree(
-                    &diff, repository()->raw()  , parent_tree, commit_tree, nullptr);
-
-
-       git_diff_print(diff,
-                      GIT_DIFF_FORMAT_PATCH,
-                        [](const git_diff_delta *delta, /**< delta that contains this data */
-                      const git_diff_hunk *hunk,   /**< hunk containing this data */
-                      const git_diff_line *line,   /**< line data */
-                      void *payload)->int
-        {
-           qDebug() << "GIT_DELTA_ADDED" << delta->status;
-//           qDebug() << hunk->new_lines;
-//           qDebug() << hunk->old_lines;
-//            qDebug() << line->new_lineno;
-            return 0;
-        }, this);
-//        m_body = QString::fromUtf8(git_diff_(raw()));
+        m_diff = new GitDiff(parent, raw(), repository());
+        git_commit_free(parent);
     }
-    return m_body;
+    return m_diff.data();
 }
 
 void GitCommit::setAuthor(QString author)
@@ -132,5 +116,11 @@ void GitCommit::setMessage(QString message)
 void GitCommit::setEmail(QString email)
 {
     Q_UNUSED(email)
+    //TODO
+}
+
+void GitCommit::setSummary(QString summary)
+{
+    Q_UNUSED(summary)
     //TODO
 }

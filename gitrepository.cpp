@@ -7,6 +7,7 @@
 #include <gitbranch.h>
 #include <gitcommit.h>
 #include <gittag.h>
+#include <gitdiff.h>
 
 #include <git2.h>
 
@@ -56,8 +57,7 @@ void GitRepository::readBranches()
 
 void GitRepository::readTags()
 {
-    git_tag_foreach(
-                raw(),
+    git_tag_foreach(raw(),
                 [](const char *name, git_oid *oid, void *payload) -> int
     {
         Q_UNUSED(payload)
@@ -78,4 +78,3 @@ void GitRepository::readTags()
     },
     this);
 }
-
