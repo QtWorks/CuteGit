@@ -7,6 +7,7 @@
 #include <gitbranch.h>
 #include <gitcommit.h>
 #include <gittag.h>
+#include <gitremote.h>
 #include <gitdiff.h>
 
 #include <git2.h>
@@ -25,6 +26,7 @@ GitRepository::GitRepository(const QString& root) : QObject(nullptr)
     qDebug() << "New repo:" << m_name << m_root << m_path;
     readBranches();
     readTags();
+    readRemotes();
 }
 
 GitRepository::~GitRepository()
@@ -77,4 +79,17 @@ void GitRepository::readTags()
         return 0;
     },
     this);
+}
+
+void GitRepository::readRemotes()
+{
+    git_reference_foreach(raw(),[](git_reference *reference, void *payload) -> int
+    {
+        if(git_reference_is_remote(reference)) {
+            GitRemote* remote = GitRemote::fromName(QString::fromLatin1(git_reference_name(reference)), static_cast<GitRepository*>(payload));
+        }
+    }, this);
+
+//    git_remote* remoteRaw;
+//    git_reference_is_remote()
 }

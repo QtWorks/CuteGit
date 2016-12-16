@@ -33,7 +33,7 @@ void GitDiff::readBody(git_commit *a, git_commit *b)
     git_diff_print(diff,
                    GIT_DIFF_FORMAT_PATCH,
                    [](const git_diff_delta *delta, const git_diff_hunk *hunk,
-                   const git_diff_line *line, void *payload)
+                   const git_diff_line *line, void *payload) -> int
     {
         Q_UNUSED(hunk)
 
@@ -55,7 +55,6 @@ void GitDiff::readBody(git_commit *a, git_commit *b)
         case GIT_DIFF_LINE_HUNK_HDR:
             prefix = "<br/><b>";
             suffix = "</b><br/>";
-//            prefix = prefix.arg("#000000").arg("");
             break;
         default:
             prefix = prefix.arg("#000000").arg("&nbsp;");

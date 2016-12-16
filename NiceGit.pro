@@ -20,7 +20,10 @@ SOURCES += \
     graphpoint.cpp \
     gittag.cpp \
     tagmodel.cpp \
-    gitdiff.cpp
+    gitdiff.cpp \
+    graphlistmodel.cpp \
+    gitremote.cpp \
+    gitbaseoid.cpp
 
 HEADERS += \
     githandler.h \
@@ -37,7 +40,10 @@ HEADERS += \
     graphpoint.h \
     gittag.h \
     tagmodel.h \
-    gitdiff.h
+    gitdiff.h \
+    graphlistmodel.h \
+    gitremote.h \
+    gitbaseoid.h
 
 RESOURCES += \
     resources.qrc

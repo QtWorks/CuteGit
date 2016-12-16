@@ -4,7 +4,7 @@
 
 #include <git2.h>
 
-GitReference::GitReference(git_reference *ref, GitRepository *parent) : GitBase(nullptr, parent)
+GitReference::GitReference(git_reference *ref, GitRepository *parent) : GitBaseOid(nullptr, parent)
   ,m_namespace(Invalid)
 {
     if(ref == nullptr) {

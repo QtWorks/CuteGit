@@ -1,12 +1,12 @@
 #ifndef GITREFERENCE_H
 #define GITREFERENCE_H
 
-#include <gitbase.h>
+#include <gitbaseoid.h>
 
 class GitRepository;
 struct git_reference;
 
-class GitReference : public GitBase<git_reference>
+class GitReference : public GitBaseOid<git_reference>
 {
     Q_OBJECT
     Q_PROPERTY(ReferenceNamespace referenceNamespace READ referenceNamespace CONSTANT)

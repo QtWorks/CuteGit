@@ -16,6 +16,9 @@
 
 GitHandler::GitHandler() : QObject()
   ,m_repositories(new RepositoryModel(this))
+  ,m_commits(nullptr)
+  ,m_graph(nullptr)
+  ,m_activeRepo(nullptr)
   ,m_activeDiff(nullptr)
 {
     git_libgit2_init();
@@ -35,6 +38,7 @@ void GitHandler::open(const QUrl &url)
 
 void GitHandler::open(const QString &path)
 {
+    qDebug() << "path" << path;
     git_buf root = {0,0,0};
     if(git_repository_discover(&root, path.toUtf8().data(), 0, NULL) != 0) {
         qDebug() << lastError();
@@ -58,7 +62,8 @@ void GitHandler::open(const QString &path)
 
     setGraph(graph);
     m_commits = CommitModel::fromGraph(graph);
-    m_repositories->add(m_activeRepo);
+    emit commitsChanged(m_commits);
+//    m_repositories->add(m_activeRepo);
 }
 
 QString GitHandler::lastError() const
@@ -96,4 +101,10 @@ void GitHandler::setActiveDiff(GitDiff* activeDiff)
 GitDiff* GitHandler::activeDiff() const
 {
     return m_activeDiff.data();
+}
+
+
+void GitHandler::pull() const
+{
+//    git_remote_fetch(m_activeRepo->remote)
 }

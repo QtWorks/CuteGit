@@ -49,6 +49,8 @@ public:
         return m_commits;
     }
 
+    void pull() const;
+
 public slots:
     void setGraph(CommitGraph* graph)
     {

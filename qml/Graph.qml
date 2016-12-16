@@ -8,7 +8,7 @@ Canvas {
     property int spacingV: 20
     property int lineWidth: 1
     property QtObject model: null
-    height: model.points.length*(elementWidth + spacingV)
+    height: model.points.count*(elementWidth + spacingV)
     width: (elementWidth + spacingH)*model.branchesCount
     QtObject {
         id: d
@@ -16,10 +16,11 @@ Canvas {
         property int halfElementHeight: elementHeight/2
     }
 
+
     onPaint: {
         var ctx = getContext("2d")
-        for(var i = 0; i < model.points.length; i++) {
-            var point = model.points[i]
+        for(var i = 0; i < model.points.count; i++) {
+            var point = model.points.at(i)
             var pointAbsX = point.x*(elementWidth + spacingH)
             var pointAbsY = point.y*(elementHeight + spacingV)
             var childPoints = point.childPoints

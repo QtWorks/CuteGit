@@ -5,6 +5,7 @@
 #include <gittag.h>
 
 #include <graphpoint.h>
+#include <graphlistmodel.h>
 
 #include <QDateTime>
 #include <QScopedPointer>
@@ -13,6 +14,7 @@
 #include <git2/commit.h>
 
 CommitGraph::CommitGraph() : QObject()
+  ,m_pointsModel(new GraphListModel(this))
   ,m_branchesCount(0)
 {
     qsrand(QDateTime::currentMSecsSinceEpoch());
@@ -52,7 +54,7 @@ void CommitGraph::addHead(const GitOid &oid)
 //    qDebug() << "Update Y coordinate after head added";
     QList<int> branchStarted;
     for(int i = 0; i < m_sortedPoints.count(); i++) {
-        GraphPoint* point = static_cast<GraphPoint*>(m_sortedPoints.at(i));
+        GraphPoint* point = m_sortedPoints.at(i);
         point->setY(m_sortedPoints.count() - i - 1);
         GitCommit *commit = GitCommit::fromOid(point->oid());
         git_commit* commitRaw = nullptr;
@@ -96,6 +98,7 @@ void CommitGraph::addHead(const GitOid &oid)
         }
         m_branchesCount = m_branchesCount < (point->x() + 1) ? (point->x() + 1) : m_branchesCount;
     }
+    m_pointsModel->reset(m_sortedPoints);
     emit branchesCountChanged(m_branchesCount);
 }
 
@@ -136,7 +139,7 @@ void CommitGraph::addCommits(QList<GitOid>& reversList)
         if(parentPoint == nullptr) {
             parentPoint = new GraphPoint(parentIter, this);
             parentPoint->setColor(m_color);
-            m_sortedPoints.prepend(parentPoint);
+            m_sortedPoints.prepend(QPointer<GraphPoint>(parentPoint));
             m_points.insert(parentPoint->oid(), parentPoint);
         }
 

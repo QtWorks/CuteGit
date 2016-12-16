@@ -5,6 +5,7 @@
 
 #include <commitgraph.h>
 #include <graphpoint.h>
+#include <graphlistmodel.h>
 
 CommitModel::CommitModel(const QString &head, QObject* parent) : UniversalListModel(parent)
   ,m_head(head)
@@ -39,9 +40,9 @@ CommitModel* CommitModel::fromBranch(GitBranch* branch)
 CommitModel* CommitModel::fromGraph(CommitGraph *graph)
 {
     CommitModel* model = new CommitModel("HEAD");
-    QList<QObject*> points = graph->points();
+    QList<QPointer<GraphPoint> > points = graph->points()->container();
     for(int i = 0; i < points.count(); i++) {
-        GraphPoint* point = static_cast<GraphPoint*>(points.at(i));
+        GraphPoint* point = points.at(i).data();
         model->m_container.prepend(GitCommit::fromOid(point->oid()));
 //        QPointer<GitTag> tag = commit->repository()->tags().value(commit->oid());
 //        if(!tag.isNull()) {

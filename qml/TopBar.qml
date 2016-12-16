@@ -30,7 +30,7 @@ Item {
             selectMultiple: false
             onAccepted: {
     //TODO: repo open is not available
-    //            _handler.open(repoOpenDialog.fileUrl)
+                _handler.open(repoOpenDialog.fileUrl)
             }
         }
 

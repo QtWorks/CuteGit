@@ -89,11 +89,12 @@ public:
 
 protected:
     void clear() {
-        foreach (const QPointer<T>& value, m_container) {
-            if(!value.isNull()) {
-                delete value.data();
-            }
-        }
+//TODO: need to verify if wee really should cleanup these commits.
+//        foreach (const QPointer<T>& value, m_container) {
+//            if(!value.isNull()) {
+//                delete value.data();
+//            }
+//        }
         m_container.clear();
     }
 

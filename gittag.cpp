@@ -1,7 +1,7 @@
 #include "gittag.h"
 #include <git2/tag.h>
 
-GitTag::GitTag(git_tag *raw, GitRepository *parent) : GitBase(raw, parent)
+GitTag::GitTag(git_tag *raw, GitRepository *parent) : GitBaseOid(raw, parent)
 {
     if(raw == nullptr) {
         return;

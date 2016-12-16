@@ -2,11 +2,9 @@
 #define GITBASE_H
 
 #include <gitrepository.h>
-#include <gitoid.h>
 
 #include <QObject>
 #include <git2/types.h>
-#include <git2/oid.h>
 
 class GitRepository;
 
@@ -17,7 +15,6 @@ public:
     GitBase(T* raw, GitRepository* parent) : QObject(parent)
       ,m_raw(raw)
       ,m_repository(parent)
-      ,m_oid(nullptr, parent)
     {}
 
     T* raw() const {
@@ -32,14 +29,9 @@ public:
         return m_repository;
     }
 
-    const GitOid& oid() const {
-        return m_oid;
-    }
-
 protected:
     T* m_raw;
     GitRepository* m_repository;
-    GitOid m_oid;
 };
 
 #endif // GITBASE_H

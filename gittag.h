@@ -1,9 +1,9 @@
 #ifndef GITTAG_H
 #define GITTAG_H
 
-#include <gitbase.h>
+#include <gitbaseoid.h>
 
-class GitTag : public GitBase<git_tag>
+class GitTag : public GitBaseOid<git_tag>
 {
     Q_OBJECT
     Q_PROPERTY(QString name READ name NOTIFY tagChanged)

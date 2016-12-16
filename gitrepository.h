@@ -14,10 +14,12 @@ class GitBranch;
 class GitTag;
 class GitDiff;
 class GitCommit;
+class GitRemote;
 struct git_oid;
 
 typedef QMap<QString, QPointer<GitBranch> > BranchContainer;
 typedef QMap<GitOid, QPointer<GitTag> > TagContainer;
+typedef QMap<QString, QPointer<GitRemote> > RemoteContainer;
 
 class GitRepository : public QObject
 {
@@ -58,6 +60,10 @@ public:
         return m_tags;
     }
 
+    RemoteContainer& remotes() {
+        return m_remotes;
+    }
+
 public slots:
     void setRoot(QString root) {
         if (m_root == root)
@@ -83,6 +89,7 @@ private:
     void close();
     void readBranches();
     void readTags();
+    void readRemotes();
 
     QString m_root;
     QString m_name;
@@ -91,6 +98,7 @@ private:
 
     BranchContainer m_branches;
     TagContainer m_tags;
+    RemoteContainer m_remotes;
 };
 
 #endif // GITREPOSITORY_H

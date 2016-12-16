@@ -1,7 +1,7 @@
 #ifndef GITCOMMIT_H
 #define GITCOMMIT_H
 
-#include <gitbase.h>
+#include <gitbaseoid.h>
 #include <gittag.h>
 
 #include <QDateTime>
@@ -12,7 +12,7 @@
 
 class GitDiff;
 
-class GitCommit : public GitBase<git_commit>
+class GitCommit : public GitBaseOid<git_commit>
 {
     Q_OBJECT
     Q_PROPERTY(QString author READ author WRITE setAuthor NOTIFY commitChanged)

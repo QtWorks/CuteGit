@@ -11,13 +11,13 @@
 #include <git2/patch.h>
 #include <git2/buffer.h>
 
-GitCommit::GitCommit(git_commit* raw, GitRepository* parent) : GitBase(raw, parent)
+GitCommit::GitCommit(git_commit* raw, GitRepository* parent) : GitBaseOid(raw, parent)
   ,m_diff(nullptr)
 {
     m_oid = GitOid(git_commit_id(m_raw), m_repository);
 }
 
-GitCommit::GitCommit() : GitBase(nullptr, nullptr)
+GitCommit::GitCommit() : GitBaseOid(nullptr, nullptr)
 {
 }
 
