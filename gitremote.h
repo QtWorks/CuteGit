@@ -14,6 +14,7 @@ public:
     GitRemote(git_remote* raw, GitRepository* parent);
     static GitRemote* fromName(const QString& remoteName, GitRepository* parent);
 
+    QString name() const;
 private:
 };
 

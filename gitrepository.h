@@ -27,6 +27,7 @@ class GitRepository : public QObject
     Q_PROPERTY(QString root READ root WRITE setRoot NOTIFY rootChanged)
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QString path READ path NOTIFY rootChanged)
+    Q_PROPERTY(GitOid head READ head WRITE setHead NOTIFY headChanged)
 
 public:
     GitRepository(const QString &root);
@@ -64,6 +65,17 @@ public:
         return m_remotes;
     }
 
+    GitOid head() const
+    {
+        return m_head;
+    }
+
+    Q_INVOKABLE bool isHead(const GitOid& oid) const {
+        return m_head == oid;
+    }
+
+    Q_INVOKABLE void checkout(QObject* object);
+
 public slots:
     void setRoot(QString root) {
         if (m_root == root)
@@ -81,9 +93,23 @@ public slots:
         emit nameChanged(name);
     }
 
+    void setHead(GitOid head)
+    {
+        if (m_head == head)
+            return;
+
+        m_head = head;
+        emit headChanged(head);
+    }
+
+    void updateHead();
+
 signals:
     void rootChanged(QString root);
     void nameChanged(QString name);
+
+    void headChanged(GitOid head);
+    void branchesChanged();
 
 private:
     void close();
@@ -99,6 +125,7 @@ private:
     BranchContainer m_branches;
     TagContainer m_tags;
     RemoteContainer m_remotes;
+    GitOid m_head;
 };
 
 #endif // GITREPOSITORY_H

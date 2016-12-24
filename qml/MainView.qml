@@ -82,4 +82,7 @@ Item {
             console.log("control released");
         }
     }
+
+    Tooltip {
+    }
 }

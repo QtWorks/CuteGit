@@ -12,6 +12,7 @@ class GitOid : public QObject
 {
     Q_OBJECT
 public:
+    GitOid();
     GitOid(const git_oid* oid, GitRepository *parent);
     GitOid(const GitOid& other);
 
@@ -28,7 +29,7 @@ public:
         return m_repository;
     }
 
-    QString toString() const;
+    Q_INVOKABLE QString toString() const;
     QString toShorten() const;
 
     bool isValid() const;
@@ -44,5 +45,7 @@ private:
 inline uint qHash(const GitOid& oid) {
     return qHash(QByteArray((const char*)(oid.raw()->id), GIT_OID_RAWSZ));
 }
+
+Q_DECLARE_METATYPE(GitOid)
 
 #endif // GITOID_H

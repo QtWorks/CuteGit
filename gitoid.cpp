@@ -2,6 +2,12 @@
 
 #include <gitrepository.h>
 
+GitOid::GitOid() : QObject()
+  ,m_oid({0})
+  ,m_repository()
+{
+}
+
 GitOid::GitOid(const git_oid *oid, GitRepository *parent) : QObject(parent)
   ,m_oid({0})
   ,m_repository(parent)

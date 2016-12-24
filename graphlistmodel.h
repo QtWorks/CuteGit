@@ -21,10 +21,10 @@ public:
         return m_container.at(i).data();
     }
 
-    int count() const
-    {
+    int count() const {
         return m_container.count();
     }
+
 signals:
     void countChanged(int count);
 };

@@ -39,6 +39,7 @@ Item {
         width: d.commitInfoWidth
         onOpenDiff: {
             fileDiff.text = diff.unified(file)
+            currentFileName.text = qsTr("Diff for ") + file
         }
     }
 
@@ -58,6 +59,15 @@ Item {
             GradientStop { position: 0.8; color: "#ffffffff" }
             GradientStop { position: 1.0; color: "#00ffffff" }
         }
+    }
+
+
+    Text {
+        id: currentFileName
+        anchors.top: parent.top
+        anchors.left: files.right
+        anchors.leftMargin: 40
+        font.weight: Font.Bold
     }
 
     ScrollView {
@@ -87,13 +97,14 @@ Item {
 
     onDiffChanged: {
         fileDiff.text = ""
+        currentFileName.text = ""
     }
 
     Rectangle {
         id: topDecor
         anchors.right: diffViewport.right
         anchors.left: diffViewport.left
-        anchors.top: parent.top
+        anchors.top: currentFileName.bottom
         height: d.viewportMargins
         gradient: Gradient {
             GradientStop { position: 0.0; color: "#ffffffff" }

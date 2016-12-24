@@ -14,8 +14,7 @@ CommitModel::CommitModel(const QString &head, QObject* parent) : UniversalListMo
 
 CommitModel* CommitModel::fromBranch(GitBranch* branch)
 {
-    qDebug() << branch->name();
-    CommitModel* tmpModel = new CommitModel(branch->name(), branch);
+    CommitModel* tmpModel = new CommitModel(branch->fullName(), branch);
     git_revwalk* walk;
     git_revwalk_new(&walk, branch->repository()->raw());
 

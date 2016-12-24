@@ -8,9 +8,12 @@ GitRemote::GitRemote(git_remote* raw, GitRepository* parent) : GitBase(raw, pare
 
 GitRemote* GitRemote::fromName(const QString& remoteName, GitRepository* parent)
 {
-    qDebug() << "new remote: " << remoteName;
     git_remote* remote = nullptr;
     git_remote_lookup(&remote, parent->raw(), remoteName.toUtf8().data());
-
     return new GitRemote(remote, parent);
+}
+
+QString GitRemote::name() const
+{
+    return QString(git_remote_name(raw()));
 }

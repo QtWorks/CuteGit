@@ -7,6 +7,9 @@
 
 class CommitModel;
 class CommitGraph;
+class BranchListModel;
+class TagListModel;
+class QFileSystemWatcher;
 
 typedef QHash<QString, QPointer<CommitModel>> CommitModelContainer;
 
@@ -14,10 +17,12 @@ class GitHandler : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(RepositoryModel* repositories READ repositories NOTIFY repositoriesChanged)
-    Q_PROPERTY(CommitGraph* graph READ graph WRITE setGraph NOTIFY graphChanged)
+    Q_PROPERTY(CommitGraph* graph READ graph NOTIFY graphChanged)
     Q_PROPERTY(GitRepository* activeRepo READ activeRepo CONSTANT)
     Q_PROPERTY(GitDiff* activeDiff READ activeDiff WRITE setActiveDiff NOTIFY activeDiffChanged)
     Q_PROPERTY(CommitModel* commits READ commits WRITE setCommits NOTIFY commitsChanged)
+    Q_PROPERTY(BranchListModel* branchList READ branchList CONSTANT)
+    Q_PROPERTY(TagListModel* tagList READ tagList CONSTANT)
 
 public:
     GitHandler();
@@ -51,16 +56,17 @@ public:
 
     void pull() const;
 
-public slots:
-    void setGraph(CommitGraph* graph)
+    BranchListModel* branchList() const
     {
-        if (m_graph == graph)
-            return;
-
-        m_graph = graph;
-        emit graphChanged(graph);
+        return m_branchList;
     }
 
+    TagListModel* tagList() const
+    {
+        return m_tagList;
+    }
+
+public slots:
     void setActiveDiff(GitDiff* activeDiff);
 
     void setCommits(CommitModel* commits)
@@ -85,11 +91,16 @@ protected:
     QString lastError() const;
 
 private:
+    void updateModels();
+
     RepositoryModel* m_repositories;
     CommitModel* m_commits;
     CommitGraph* m_graph;
     GitRepository* m_activeRepo;
     QPointer<GitDiff> m_activeDiff;
+    BranchListModel* m_branchList;
+    TagListModel* m_tagList;
+    QFileSystemWatcher* m_activeRepoWatcher;
 };
 
 #endif // GITHANDLER_H

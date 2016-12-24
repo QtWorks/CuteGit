@@ -24,7 +24,6 @@ void CommitGraph::addHead(GitBranch* branch)
 {
     const GitOid& oid = branch->oid();
     addHead(oid);
-    m_points[oid]->setBranch(branch->name());
 }
 
 void CommitGraph::addHead(const GitOid &oid)
@@ -161,4 +160,15 @@ void CommitGraph::addCommits(QList<GitOid>& reversList)
             parentPoint->addChildPoint(point);
         }
     }
+}
+
+GraphPoint* CommitGraph::point(const GitOid& oid)
+{
+    GraphPoint* point = m_points.value(oid, nullptr);
+    return point;
+}
+
+GraphPoint* CommitGraph::point(int i)
+{
+    return m_sortedPoints.at(i);
 }

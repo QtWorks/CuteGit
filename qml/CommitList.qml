@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import QtQuick.Controls 1.4
 
 FlickPager {
     id: root
@@ -11,6 +12,7 @@ FlickPager {
         property int commitsWidth: 0
         property int graphWidth: 0
         property int fullMessageWidth: 600
+        property int annotationWidth: 200
     }
 
     width: 120
@@ -21,21 +23,21 @@ FlickPager {
             name: "full"
             PropertyChanges {
                 target: root
-                width: d.fullMessageWidth + d.commitsWidth + d.graphWidth
+                width: d.fullMessageWidth + d.commitsWidth + d.graphWidth + d.annotationWidth
             }
         },
         State {
             name: "commitsOnly"
             PropertyChanges {
                 target: root
-                width: d.commitsWidth + d.graphWidth
+                width: d.commitsWidth + d.graphWidth + d.annotationWidth
             }
         },
         State {
             name: "treeOnly"
             PropertyChanges {
                 target: root
-                width: 120
+                width: d.graphWidth + d.annotationWidth
             }
         }
     ]
@@ -66,7 +68,7 @@ FlickPager {
                     height: graph.elementHeight
                     color: textSelector.containsMouse ? "#bbbbbb" : "#00bbbbbb"
                     Item {
-                        width: root.width - graph.width
+                        width: root.width - graph.width - graphAnnotation.width
                         height: sha1.height
                         anchors.right: parent.right
                         Text {
@@ -110,16 +112,38 @@ FlickPager {
                         anchors.fill: parent
                         hoverEnabled: true
                         focus: true
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
                         onClicked: {
-                            root.commitClicked(model.modelData)
+                            if(mouse.button === Qt.RightButton) {
+                                commitMenu.popup()
+                            } else {
+                                root.commitClicked(model.modelData)
+                            }
+                        }
+                    }
+                    Menu {
+                        id: commitMenu
+                        MenuItem {
+                            text: "Checkout commit"
+                            onTriggered: {
+                                _handler.activeRepo.checkout(model.modelData)
+                            }
                         }
                     }
                 }
             }
         }
 
+        GraphAnnotation {
+            id: graphAnnotation
+            elementHeight: graph.elementHeight
+            spacing: graph.spacingV
+            width: d.annotationWidth
+        }
+
         Graph {
             id: graph
+            anchors.left: graphAnnotation.right
             model: root.graphModel
             onWidthChanged: {
                 d.graphWidth = graph.width

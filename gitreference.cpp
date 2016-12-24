@@ -66,3 +66,9 @@ void GitReference::free()
 
     m_raw = nullptr;
 }
+
+QString GitReference::refName() const
+{
+    return QString(git_reference_name(m_raw));
+}
+

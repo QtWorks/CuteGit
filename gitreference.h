@@ -28,6 +28,8 @@ public:
         return m_namespace;
     }
 
+    QString refName() const;
+
 protected:
     GitReference(git_reference* ref, GitRepository* parent);
     void free();

@@ -26,5 +26,14 @@
         <file>qml/CommitInfoLine.qml</file>
         <file>images/arrow-203-16_active.png</file>
         <file>images/arrow-203-16.png</file>
+        <file>qml/GraphAnnotation.qml</file>
+        <file>images/tag.svg</file>
+        <file>images/arrow.svg</file>
+        <file>images/arrow_annotation.png</file>
+        <file>images/branch.svg</file>
+        <file>images/branch.png</file>
+        <file>qml/Tooltip.qml</file>
+        <file>images/aim.svg</file>
+        <file>images/aim.png</file>
     </qresource>
 </RCC>

@@ -23,7 +23,10 @@ SOURCES += \
     gitdiff.cpp \
     graphlistmodel.cpp \
     gitremote.cpp \
-    gitbaseoid.cpp
+    gitbaseoid.cpp \
+    branchlistmodel.cpp \
+    taglistmodel.cpp \
+    tooltipviewmodel.cpp
 
 HEADERS += \
     githandler.h \
@@ -43,7 +46,10 @@ HEADERS += \
     gitdiff.h \
     graphlistmodel.h \
     gitremote.h \
-    gitbaseoid.h
+    gitbaseoid.h \
+    branchlistmodel.h \
+    taglistmodel.h \
+    tooltipviewmodel.h
 
 RESOURCES += \
     resources.qrc

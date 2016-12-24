@@ -19,9 +19,8 @@ class GitDiff;
 class CommitGraph : public QObject
 {
     Q_OBJECT
-//    Q_PROPERTY(QList<QObject*> points READ points CONSTANT)
-    Q_PROPERTY(int branchesCount READ branchesCount NOTIFY branchesCountChanged)
     Q_PROPERTY(GraphListModel* points READ points NOTIFY pointsChanged)
+    Q_PROPERTY(int branchesCount READ branchesCount NOTIFY branchesCountChanged)
 public:
     CommitGraph();
     void addHead(GitBranch* branch);
@@ -35,6 +34,9 @@ public:
     {
         return m_branchesCount;
     }
+
+    Q_INVOKABLE GraphPoint* point(const GitOid& oid);
+    Q_INVOKABLE GraphPoint* point(int i);
 
 signals:
     void branchesCountChanged(int branchesCount);
