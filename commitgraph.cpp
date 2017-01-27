@@ -4,6 +4,8 @@
 #include <gitbranch.h>
 #include <gittag.h>
 
+#include <colorhandler.h>
+
 #include <graphpoint.h>
 #include <graphlistmodel.h>
 
@@ -28,12 +30,10 @@ void CommitGraph::addHead(GitBranch* branch)
 
 void CommitGraph::addHead(const GitOid &oid)
 {
-    //Random color generation to be replaced with resets
-    int red = qrand() % 205 + 50;
-    int green = qrand() % 205 + 50;
-    int blue = qrand() % 205 + 50;
-    m_color = QString::number(red, 16) + QString::number(green, 16) + QString::number(blue, 16);
+    //Read color for this head
+    m_color = ColorHandler::instance().color(oid);
 
+    //Random color generation to be replaced with resets
     git_revwalk* walk;
     git_revwalk_new(&walk, oid.repository()->raw());
 
@@ -58,7 +58,6 @@ void CommitGraph::addHead(const GitOid &oid)
         GitCommit *commit = GitCommit::fromOid(point->oid());
         git_commit* commitRaw = nullptr;
         int parentCount = git_commit_parentcount(commit->raw());
-        delete commit;
 //        qDebug() << "New commit: " << point->oid().toString() << point->x() << point->y();
         for(int j = 0; j < parentCount; j++) {//Add connection to parent in case if count of parents > 1
             git_commit_parent(&commitRaw, commit->raw(), j);
@@ -95,6 +94,7 @@ void CommitGraph::addHead(const GitOid &oid)
                 branchStarted.removeAll(point->x());
             }
         }
+        delete commit;
         m_branchesCount = m_branchesCount < (point->x() + 1) ? (point->x() + 1) : m_branchesCount;
     }
     m_pointsModel->reset(m_sortedPoints);

@@ -2,16 +2,18 @@ import QtQuick 2.0
 import QtQuick.Controls 1.4
 import org.semlanik.nicegit 1.0
 
-Item {
+FocusScope {
     id: root
     property var commitsForDiff: null
     property bool controlActive: false
+    focus: true
     TopBar {
         id: topBar
         onCloseClicked: {
             commitPlane.diff = null
             commitPlane.commit = null
             commitList.state = "full"
+            commitList.activeCommit = null
         }
         closeVisible: commitPlane.diff != null
     }
@@ -25,7 +27,7 @@ Item {
     CommitList {
         id: commitList
         anchors.top: topBar.bottom
-        anchors.bottom: parent.bottom
+        anchors.bottom: consoleContol.top
         anchors.left: parent.left
 
         commitsModel: _handler.commits
@@ -64,15 +66,30 @@ Item {
         anchors.left: commitList.right
         anchors.right: parent.right
         anchors.top: topBar.bottom
-        anchors.bottom: parent.bottom
+        anchors.bottom: consoleContol.top
 //        visible: diff != null
 //        opacity: diff != null ? 1.0 : 0.0
     }
 
+    ConsoleControl {
+        id: consoleContol
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+    }
+
     Keys.onPressed: {
-        if(event.key === Qt.Key_Control) {
+        event.accepted = true
+        switch(event.key) {
+        case Qt.Key_Control:
             root.controlActive = true
-            console.log("control pressed");
+            console.log("control pressed")
+            break
+        case Qt.Key_F4:
+            consoleContol.state = consoleContol.state === "closed" ? "opened" : "closed"
+            break
+        default:
+            event.accepted = false
         }
     }
 

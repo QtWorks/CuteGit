@@ -26,6 +26,7 @@ Rectangle {
         id: control
         anchors.fill: parent
         hoverEnabled: true
+        enabled: arrow.active
         onClicked: {
             arrow.clicked()
         }

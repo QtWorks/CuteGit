@@ -12,6 +12,7 @@
 
 #include <git2.h>
 
+
 GitRepository::GitRepository(const QString& root) : QObject(nullptr)
 {
     if(git_repository_open(&m_raw, root.toUtf8().data()) != 0) {
@@ -27,6 +28,7 @@ GitRepository::GitRepository(const QString& root) : QObject(nullptr)
     readBranches();
     readTags();
     readRemotes();
+    updateHead();
 }
 
 GitRepository::~GitRepository()

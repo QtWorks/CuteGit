@@ -103,6 +103,9 @@ public slots:
     }
 
     void updateHead();
+    void readBranches();
+    void readTags();
+    void readRemotes();
 
 signals:
     void rootChanged(QString root);
@@ -113,9 +116,6 @@ signals:
 
 private:
     void close();
-    void readBranches();
-    void readTags();
-    void readRemotes();
 
     QString m_root;
     QString m_name;

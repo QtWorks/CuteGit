@@ -100,7 +100,7 @@ Item {
             anchors.right: parent.right
             height: d.fullHeight
             width: root.width / 2
-            y: _handler.graph.point(model.targetId).y*(root.elementHeight + root.spacing) - spacing/2
+            y: _handler.graph.point(model.targetId).y*d.fullHeight - spacing/2
             clip: true
             Rectangle {
                 anchors.left: parent.left

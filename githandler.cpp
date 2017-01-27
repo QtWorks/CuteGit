@@ -3,6 +3,8 @@
 #include <QDebug>
 #include <QUrl>
 #include <QFileSystemWatcher>
+#include <QGuiApplication>
+#include <QClipboard>
 #include <qqml.h>
 
 #include <gitrepository.h>
@@ -12,10 +14,12 @@
 #include <tagmodel.h>
 #include <git2.h>
 
+#include <colorhandler.h>
 #include <commitgraph.h>
 #include <graphpoint.h>
 #include <branchlistmodel.h>
 #include <taglistmodel.h>
+#include <gitconsole.h>
 
 GitHandler::GitHandler() : QObject()
   ,m_repositories(new RepositoryModel(this))
@@ -26,6 +30,7 @@ GitHandler::GitHandler() : QObject()
   ,m_branchList(new BranchListModel(this))
   ,m_tagList(new TagListModel(this))
   ,m_activeRepoWatcher(new QFileSystemWatcher(this))
+  ,m_console(new GitConsole(this))
 {
     git_libgit2_init();
 }
@@ -60,14 +65,18 @@ void GitHandler::open(const QString &path)
         qDebug() << lastError();
         return;
     }
+    ColorHandler::instance().updateColors(m_activeRepo);
+    m_constantHead = m_activeRepo->head();
+    m_console->setRepository(m_activeRepo);
 
     connect(m_activeRepo, &GitRepository::branchesChanged, this, &GitHandler::updateModels);
     updateModels();
-    m_activeRepo->updateHead();
 
     m_activeRepoWatcher->addPath(m_activeRepo->root());
+    connect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, m_activeRepo, &GitRepository::readBranches);
+    connect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, m_activeRepo, &GitRepository::readRemotes);
+    connect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, m_activeRepo, &GitRepository::readTags);
     connect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, this, &GitHandler::updateModels);
-    connect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, m_activeRepo, &GitRepository::updateHead);
     //TODO: opened repositories configuraion TBD
     //    m_repositories->add(m_activeRepo);
 }
@@ -119,10 +128,24 @@ void GitHandler::updateModels()
     if(!m_activeRepo) {
         return;
     }
+    m_activeRepo->updateHead();
 
     BranchContainer &branches = m_activeRepo->branches();
     CommitGraph* graph = new CommitGraph();
-    graph->addHead(branches.value("master").data()->oid());
+
+    bool headIsBranch = false;
+    //TODO: Need to think about constant head more deeply
+//    foreach(GitBranch* branch, branches) {
+//        if(branch->oid() == m_constantHead) {
+//            graph->addHead(branch);
+//            headIsBranch = true;
+//            break;
+//        }
+//    }
+
+    if(!headIsBranch) {
+        graph->addHead(m_activeRepo->head());
+    }
 
     foreach(GitBranch* branch, branches) {
         qDebug() << "Next head " << branch->fullName();
@@ -139,3 +162,9 @@ void GitHandler::updateModels()
     m_branchList->reset(m_activeRepo->branches().values());
     m_tagList->reset(m_activeRepo->tags().values());
 }
+
+void GitHandler::copySha1(const QString& sha1)
+{
+    QGuiApplication::clipboard()->setText(sha1);
+}
+

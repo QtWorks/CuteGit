@@ -10,6 +10,7 @@ class CommitGraph;
 class BranchListModel;
 class TagListModel;
 class QFileSystemWatcher;
+class GitConsole;
 
 typedef QHash<QString, QPointer<CommitModel>> CommitModelContainer;
 
@@ -23,6 +24,7 @@ class GitHandler : public QObject
     Q_PROPERTY(CommitModel* commits READ commits WRITE setCommits NOTIFY commitsChanged)
     Q_PROPERTY(BranchListModel* branchList READ branchList CONSTANT)
     Q_PROPERTY(TagListModel* tagList READ tagList CONSTANT)
+    Q_PROPERTY(GitConsole* console READ console CONSTANT)
 
 public:
     GitHandler();
@@ -31,6 +33,8 @@ public:
     Q_INVOKABLE void open(const QUrl &url);
 
     Q_INVOKABLE GitDiff* diff(GitCommit* a, GitCommit* b);
+
+    Q_INVOKABLE void copySha1(const QString& sha1);
 
     RepositoryModel* repositories() const
     {
@@ -64,6 +68,11 @@ public:
     TagListModel* tagList() const
     {
         return m_tagList;
+    }
+
+    GitConsole* console() const
+    {
+        return m_console;
     }
 
 public slots:
@@ -101,6 +110,8 @@ private:
     BranchListModel* m_branchList;
     TagListModel* m_tagList;
     QFileSystemWatcher* m_activeRepoWatcher;
+    GitConsole* m_console;
+    GitOid m_constantHead;
 };
 
 #endif // GITHANDLER_H

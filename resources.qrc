@@ -35,5 +35,6 @@
         <file>qml/Tooltip.qml</file>
         <file>images/aim.svg</file>
         <file>images/aim.png</file>
+        <file>qml/ConsoleControl.qml</file>
     </qresource>
 </RCC>

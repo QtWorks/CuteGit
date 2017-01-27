@@ -37,7 +37,7 @@ Item {
         }
 
         CommitInfoLine {
-            field: qsTr("Autor")
+            field: qsTr("Author")
             value: commit ? commit.author : ""
         }
 

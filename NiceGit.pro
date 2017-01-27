@@ -26,7 +26,9 @@ SOURCES += \
     gitbaseoid.cpp \
     branchlistmodel.cpp \
     taglistmodel.cpp \
-    tooltipviewmodel.cpp
+    tooltipviewmodel.cpp \
+    gitconsole.cpp \
+    colorhandler.cpp
 
 HEADERS += \
     githandler.h \
@@ -49,7 +51,9 @@ HEADERS += \
     gitbaseoid.h \
     branchlistmodel.h \
     taglistmodel.h \
-    tooltipviewmodel.h
+    tooltipviewmodel.h \
+    gitconsole.h \
+    colorhandler.h
 
 RESOURCES += \
     resources.qrc

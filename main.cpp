@@ -5,6 +5,7 @@
 #include <QFontDatabase>
 
 #include <githandler.h>
+#include <gitconsole.h>
 #include <gitrepository.h>
 #include <repositorymodel.h>
 #include <gitbranch.h>
@@ -43,6 +44,7 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<GraphListModel>("org.semlanik.nicegit", 1, 0, "GraphListModel", "Owned only by GitHandler");
     qmlRegisterUncreatableType<BranchListModel>("org.semlanik.nicegit", 1, 0, "BranchListModel", "Owned only by GitHandler");
     qmlRegisterUncreatableType<TagListModel>("org.semlanik.nicegit", 1, 0, "TagListModel", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<GitConsole>("org.semlanik.nicegit", 1, 0, "GitConsole", "Owned only by GitHandler");
     qmlRegisterSingletonType<TooltipViewModel>("org.semlanik.nicegit", 1, 0,"TooltipViewModel",
                                                [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject*
     {

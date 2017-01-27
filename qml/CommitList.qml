@@ -5,6 +5,7 @@ FlickPager {
     id: root
     property QtObject graphModel: null
     property QtObject commitsModel: null
+    property QtObject activeCommit: null
     signal commitClicked(var commit)
 
     QtObject {
@@ -66,7 +67,13 @@ FlickPager {
                 Rectangle {
                     width: parent.width
                     height: graph.elementHeight
-                    color: textSelector.containsMouse ? "#bbbbbb" : "#00bbbbbb"
+                    color: {
+                        if(activeCommit && activeCommit.sha1 === model.sha1){
+                            return "#bbeebb"
+                        }
+
+                        return textSelector.containsMouse ? "#bbbbbb" : "#00bbbbbb"
+                    }
                     Item {
                         width: root.width - graph.width - graphAnnotation.width
                         height: sha1.height
@@ -118,11 +125,19 @@ FlickPager {
                                 commitMenu.popup()
                             } else {
                                 root.commitClicked(model.modelData)
+                                //TODO: Because active commit is used in multiple places need to make it part of some model (e.g. git handler)
+                                activeCommit = model.modelData;
                             }
                         }
                     }
                     Menu {
                         id: commitMenu
+                        MenuItem {
+                            text: "Copy sha-id"
+                            onTriggered: {
+                                _handler.copySha1(model.sha1)
+                            }
+                        }
                         MenuItem {
                             text: "Checkout commit"
                             onTriggered: {
