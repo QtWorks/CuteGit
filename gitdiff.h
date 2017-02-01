@@ -2,8 +2,10 @@
 #define GITDIFF_H
 
 #include <QObject>
-#include <QHash>
+#include <QMap>
 #include <QString>
+
+#include <diffmodel.h>
 
 struct git_commit;
 
@@ -16,16 +18,16 @@ class GitDiff : public QObject
 
 public:
     GitDiff(git_commit* a, git_commit* b, GitRepository* repository);
-    ~GitDiff(){}
+    ~GitDiff();
     void readBody(git_commit* a, git_commit* b);
     void reset();
 
-    Q_INVOKABLE QString unified(const QString& file);
+    Q_INVOKABLE DiffModel* model(const QString& file);
 
     QStringList files();
 
 private:
-    QHash<QString, QString> m_diffList;
+    QMap<QString, QPointer<DiffModel> > m_diffList;
     GitRepository* m_repository;
 };
 

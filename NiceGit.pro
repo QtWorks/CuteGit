@@ -28,7 +28,8 @@ SOURCES += \
     taglistmodel.cpp \
     tooltipviewmodel.cpp \
     gitconsole.cpp \
-    colorhandler.cpp
+    colorhandler.cpp \
+    diffmodel.cpp
 
 HEADERS += \
     githandler.h \
@@ -53,7 +54,8 @@ HEADERS += \
     taglistmodel.h \
     tooltipviewmodel.h \
     gitconsole.h \
-    colorhandler.h
+    colorhandler.h \
+    diffmodel.h
 
 RESOURCES += \
     resources.qrc

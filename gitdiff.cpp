@@ -16,19 +16,32 @@ GitDiff::GitDiff(git_commit* a, git_commit* b, GitRepository *repository) : QObj
     readBody(a, b);
 }
 
+GitDiff::~GitDiff()
+{
+    reset();
+}
+
 void GitDiff::readBody(git_commit *a, git_commit *b)
 {
     git_diff *diff = nullptr;
 
-    git_tree *a_tree = nullptr;
-    git_tree *b_tree = nullptr;
+    git_tree *aTree = nullptr;
+    git_tree *bTree = nullptr;
 
+    git_diff_find_options similarityOpts;
 
-    git_commit_tree(&a_tree, a);
-    git_commit_tree(&b_tree, b);
+    if(a != nullptr) {
+        git_commit_tree(&aTree, a);
+    }
 
-    git_diff_tree_to_tree(&diff, m_repository->raw(), a_tree, b_tree, nullptr);
+    if(b != nullptr) {
+        git_commit_tree(&bTree, b);
+    }
 
+    git_diff_tree_to_tree(&diff, m_repository->raw(), aTree, bTree, nullptr);
+
+    git_diff_find_init_options(&similarityOpts, GIT_DIFF_FIND_OPTIONS_VERSION);
+    git_diff_find_similar(diff, &similarityOpts);
 
     git_diff_print(diff,
                    GIT_DIFF_FORMAT_PATCH,
@@ -40,10 +53,10 @@ void GitDiff::readBody(git_commit *a, git_commit *b)
         QString prefix("<font color=\"%1\">%2");
         QString suffix("</font><br/>");
         GitDiff* diff = static_cast<GitDiff*>(payload);
-        QString fileName(delta->new_file.path);
-        if(line->origin == GIT_DIFF_LINE_FILE_HDR) {
-            return 0;
-        }
+        QString newFileName(delta->new_file.path);
+        QString oldFileName(delta->old_file.path);
+
+        QString diffData;
 
         switch(line->origin) {
         case GIT_DIFF_LINE_ADDITION:
@@ -66,19 +79,38 @@ void GitDiff::readBody(git_commit *a, git_commit *b)
             prefix = prefix.arg(line->origin);
         }
 
-        diff->m_diffList[fileName].append(prefix);
-        diff->m_diffList[fileName].append(QString::fromUtf8(line->content, line->content_len).toHtmlEscaped().replace(" ", "&nbsp;"));
-        diff->m_diffList[fileName].append(suffix);
+        if(!diff->m_diffList.contains(newFileName)) {
+            diff->m_diffList.insert(newFileName, QPointer<DiffModel>(new DiffModel(newFileName, diff)));
+        }
+
+        if(line->origin != GIT_DIFF_LINE_FILE_HDR) { //Add line only in case if origin is not file header
+            diffData = QString::fromUtf8(line->content, line->content_len);
+        } else if(delta->status == GIT_DELTA_RENAMED){ //else check the similarity
+            if(delta->similarity == 100) {
+                diffData = QString(oldFileName + " -> " + newFileName);
+            }
+            diff->m_diffList[newFileName]->setSimilarity(delta->similarity);
+        }
+
+        if(!diffData.isEmpty()) {
+            diff->m_diffList[newFileName]->append(prefix);
+            diff->m_diffList[newFileName]->append(diffData.toHtmlEscaped().replace(" ", "&nbsp;"));
+            diff->m_diffList[newFileName]->append(suffix);
+        }
+        diff->m_diffList[newFileName]->setType(delta->status);
         return 0;
     }, this);
 
     git_diff_free(diff);
-    git_tree_free(a_tree);
-    git_tree_free(b_tree);
+    git_tree_free(aTree);
+    git_tree_free(bTree);
 }
 
 void GitDiff::reset()
 {
+    foreach (QPointer<DiffModel> model, m_diffList) {
+        model.clear();
+    }
     m_diffList.clear();
 }
 
@@ -87,7 +119,8 @@ QStringList GitDiff::files()
     return m_diffList.keys();
 }
 
-QString GitDiff::unified(const QString& file)
+DiffModel* GitDiff::model(const QString& file)
 {
-    return m_diffList.value(file);
+    DiffModel* model = m_diffList.value(file).data();
+    return model;
 }

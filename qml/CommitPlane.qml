@@ -18,6 +18,7 @@ Item {
         id: d
         property int viewportMargins: 20
         property int commitInfoWidth: 400
+        property QtObject diffModel: null
     }
 
     CommitInfo {
@@ -30,7 +31,7 @@ Item {
 
     DiffFiles {
         id: files
-        files: diff ? diff.files : null
+        diff: root.diff
         anchors.top: arrow.bottom
         anchors.topMargin: -10
         anchors.bottom: parent.bottom
@@ -38,8 +39,7 @@ Item {
         anchors.leftMargin: 20
         width: d.commitInfoWidth
         onOpenDiff: {
-            fileDiff.text = diff.unified(file)
-            currentFileName.text = qsTr("Diff for ") + file
+            d.diffModel = diff.model(file)
         }
     }
 
@@ -64,6 +64,7 @@ Item {
 
     Text {
         id: currentFileName
+        text: qsTr("Diff for ") + (d.diffModel ? d.diffModel.path : "")
         anchors.top: parent.top
         anchors.left: files.right
         anchors.leftMargin: 40
@@ -87,6 +88,7 @@ Item {
             height: fileDiff.contentHeight + 20
             Text {
                 id: fileDiff
+                text: d.diffModel ? d.diffModel.data : ""
                 anchors.top: parent.top
                 anchors.topMargin: 10
                 font.family: "Inconsolata"
@@ -96,8 +98,7 @@ Item {
     }
 
     onDiffChanged: {
-        fileDiff.text = ""
-        currentFileName.text = ""
+        d.diffModel = null
     }
 
     Rectangle {

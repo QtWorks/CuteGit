@@ -36,5 +36,15 @@
         <file>images/aim.svg</file>
         <file>images/aim.png</file>
         <file>qml/ConsoleControl.qml</file>
+        <file>images/diff-added.svg</file>
+        <file>images/diff-ignored.svg</file>
+        <file>images/diff-modified.svg</file>
+        <file>images/diff-removed.svg</file>
+        <file>images/diff-renamed.svg</file>
+        <file>images/diff-added.png</file>
+        <file>images/diff-ignored.png</file>
+        <file>images/diff-modified.png</file>
+        <file>images/diff-removed.png</file>
+        <file>images/diff-renamed.png</file>
     </qresource>
 </RCC>

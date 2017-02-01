@@ -16,6 +16,7 @@
 #include <gitdiff.h>
 #include <gitoid.h>
 #include <tooltipviewmodel.h>
+#include <diffmodel.h>
 
 #include <graphlistmodel.h>
 #include <branchlistmodel.h>
@@ -45,6 +46,7 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<BranchListModel>("org.semlanik.nicegit", 1, 0, "BranchListModel", "Owned only by GitHandler");
     qmlRegisterUncreatableType<TagListModel>("org.semlanik.nicegit", 1, 0, "TagListModel", "Owned only by GitHandler");
     qmlRegisterUncreatableType<GitConsole>("org.semlanik.nicegit", 1, 0, "GitConsole", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<DiffModel>("org.semlanik.nicegit", 1, 0, "DiffModel", "Owned only by GitHandler");
     qmlRegisterSingletonType<TooltipViewModel>("org.semlanik.nicegit", 1, 0,"TooltipViewModel",
                                                [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject*
     {

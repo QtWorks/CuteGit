@@ -33,7 +33,7 @@ FocusScope {
         commitsModel: _handler.commits
         graphModel: _handler.graph
         onCommitClicked: {
-            if(commit.diff == null) {
+            if(commit.diff === null) {
                 commitPlane.commit = null
                 commitPlane.diff = null
                 commitList.state = "full"
