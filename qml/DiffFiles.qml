@@ -14,12 +14,12 @@ ListView {
         property QtObject diffModel: root.diff.model(modelData)
         width: commitBodyText.width + action.width + 10
         height: commitBodyText.height + 10
-//        Rectangle {
-//            color: "red"
-//            anchors.right: action.left
-//            height: parent.height
-//            width: parent.width*diffModel.similarity/100
-//        }
+        //        Rectangle {
+        //            color: "red"
+        //            anchors.right: action.left
+        //            height: parent.height
+        //            width: parent.width*diffModel.similarity/100
+        //        }
         Text {
             id: commitBodyText
             anchors.bottom: parent.bottom
@@ -33,8 +33,19 @@ ListView {
                 id: control
                 anchors.fill: parent
                 hoverEnabled: true
+                acceptedButtons: Qt.RightButton|Qt.LeftButton
                 onClicked: {
-                    root.openDiff(modelData)
+                    if(mouse.button === Qt.RightButton) {
+                        var coord = commitBodyText.mapToItem(TooltipViewModel.viewport, 0, 0)
+                        TooltipViewModel.x = coord.x
+                        TooltipViewModel.y = coord.y
+                        TooltipViewModel.text = qsTr("Filename copied ") + modelData
+                        TooltipViewModel.visible = true
+                        _handler.copy(modelData)
+                        tttimer.restart()
+                    } else {
+                        root.openDiff(modelData)
+                    }
                 }
             }
         }
@@ -58,6 +69,18 @@ ListView {
                     }
                 }
             }
+        }
+    }
+
+    Timer {
+        id: tttimer
+        interval: 1000
+        repeat: false
+        onTriggered: {
+            TooltipViewModel.visible = false
+        }
+        Component.onDestruction: {
+            TooltipViewModel.visible = false
         }
     }
 }

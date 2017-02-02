@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.4
+import org.semlanik.nicegit 1.0
 
 Item {
     id: root
@@ -86,13 +87,16 @@ Item {
             id: innerItem
             width: fileDiff.contentWidth
             height: fileDiff.contentHeight + 20
-            Text {
+            TextEdit {
                 id: fileDiff
                 text: d.diffModel ? d.diffModel.data : ""
                 anchors.top: parent.top
                 anchors.topMargin: 10
+                textFormat: TextEdit.RichText
                 font.family: "Inconsolata"
                 font.pointSize: 12
+                selectByMouse: true
+                readOnly: true
             }
         }
     }

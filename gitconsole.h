@@ -14,6 +14,7 @@ class GitConsole : public QObject
     Q_OBJECT
     Q_PROPERTY(bool busy READ busy WRITE setBusy NOTIFY busyChanged)
     Q_PROPERTY(QString recent READ recent NOTIFY recentChanged)
+
 public:
     GitConsole(QObject* parent = 0);
     ~GitConsole();
@@ -49,12 +50,17 @@ public slots:
 
     Q_INVOKABLE void recentUp();
     Q_INVOKABLE void recentDown();
+    Q_INVOKABLE void requestAutocomplete(const QString& current);
+    Q_INVOKABLE void requestPredictions(QString current);
 
 signals:
     void busyChanged(bool busy);
     void commandLog(const QString& data, bool prepend);
+    void resetLog();
     void commandError();
     void recentChanged(QString recent);
+    void autocomplete(const QString& value);
+    void predict(const QList<QString>& predictions);
 
 private:
     QProcess* m_process;

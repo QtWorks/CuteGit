@@ -82,10 +82,6 @@ QString GitCommit::summary() const
 
 GitDiff* GitCommit::diff()
 {
-    if(isMerge()) {
-        return nullptr;//QString("Commit - merge");
-    }
-
     if(m_diff.isNull()) {
         git_commit *parent = nullptr;
         git_commit_parent(&parent, raw(), 0);

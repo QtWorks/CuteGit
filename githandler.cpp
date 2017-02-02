@@ -163,7 +163,7 @@ void GitHandler::updateModels()
     m_tagList->reset(m_activeRepo->tags().values());
 }
 
-void GitHandler::copySha1(const QString& sha1)
+void GitHandler::copy(const QString& sha1)
 {
     QGuiApplication::clipboard()->setText(sha1);
 }

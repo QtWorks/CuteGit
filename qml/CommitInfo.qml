@@ -45,6 +45,19 @@ Item {
             field: qsTr("Email")
             value: commit ? commit.email : ""
         }
+
+        CommitInfoLine {
+            field: qsTr("Summary")
+            value: commit ? commit.summary : ""
+        }
+    }
+    Image {
+        id: merge
+        visible: commit.isMerge
+        source: "qrc:///images/flow-merge.png"
+        anchors.right: shortInfo.right
+        anchors.rightMargin: 5
+        anchors.top: shortInfo.top
     }
     Column {
         anchors.top: shortInfo.bottom

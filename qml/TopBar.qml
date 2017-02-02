@@ -1,13 +1,14 @@
 import QtQuick 2.0
 import QtQuick.Dialogs 1.2
 import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
 Item {
     id: root
     anchors.right: parent.right
     anchors.left: parent.left
     height: childrenRect.height
     signal closeClicked()
-    property alias closeVisible: closeButton.visible
+    property alias closeVisible: closeControl.visible
     Row {
         spacing: 10
         height: 50
@@ -36,19 +37,19 @@ Item {
 
     }
 
-    Image {
-        id: closeButton
+    Button {
+        id: closeControl
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.topMargin: 10
         anchors.rightMargin: 10
-        source: closeControl.pressed ? "qrc:///images/x-mark-3-24_active.png" : "qrc:///images/x-mark-3-24.png"
-        MouseArea {
-            id: closeControl
-            anchors.fill: parent
-            onClicked: {
-                root.closeClicked()
+        style: ButtonStyle {
+            background: Image {
+                source: control.pressed ? "qrc:///images/x-mark-3-24_active.png" : "qrc:///images/x-mark-3-24.png"
             }
+        }
+        onClicked: {
+            root.closeClicked()
         }
     }
 }

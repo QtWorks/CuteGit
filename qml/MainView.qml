@@ -88,6 +88,11 @@ FocusScope {
         case Qt.Key_F4:
             consoleContol.state = consoleContol.state === "closed" ? "opened" : "closed"
             break
+        case Qt.Key_G://Found the G point. Let's open console using this action.
+            //TODO: Later has to be part of Console C++ class to read settings
+            consoleContol.state = "opened"
+            _handler.console.requestAutocomplete("g");
+            break
         default:
             event.accepted = false
         }
@@ -98,6 +103,11 @@ FocusScope {
             root.controlActive = false
             console.log("control released");
         }
+    }
+
+    onActiveFocusChanged: {
+        root.controlActive = false
+        console.log("control released");
     }
 
     Tooltip {

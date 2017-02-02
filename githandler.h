@@ -34,7 +34,7 @@ public:
 
     Q_INVOKABLE GitDiff* diff(GitCommit* a, GitCommit* b);
 
-    Q_INVOKABLE void copySha1(const QString& sha1);
+    Q_INVOKABLE void copy(const QString& sha1);
 
     RepositoryModel* repositories() const
     {

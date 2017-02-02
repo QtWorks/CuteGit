@@ -46,5 +46,11 @@
         <file>images/diff-modified.png</file>
         <file>images/diff-removed.png</file>
         <file>images/diff-renamed.png</file>
+        <file>images/erase-24.png</file>
+        <file>images/gear-2-24.png</file>
+        <file>images/gear-2-24_active.png</file>
+        <file>images/erase-24_active.png</file>
+        <file>images/flow-merge.png</file>
+        <file>images/flow-merge-16.png</file>
     </qresource>
 </RCC>

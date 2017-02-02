@@ -14,6 +14,7 @@ FlickPager {
         property int graphWidth: 0
         property int fullMessageWidth: 600
         property int annotationWidth: 200
+        property int summaryAdditionalSpace: 95 //Applicable for commitsOnly state
     }
 
     width: 120
@@ -31,7 +32,7 @@ FlickPager {
             name: "commitsOnly"
             PropertyChanges {
                 target: root
-                width: d.commitsWidth + d.graphWidth + d.annotationWidth
+                width: d.commitsWidth + d.graphWidth + d.annotationWidth + d.summaryAdditionalSpace
             }
         },
         State {
@@ -78,11 +79,18 @@ FlickPager {
                         width: root.width - graph.width - graphAnnotation.width
                         height: sha1.height
                         anchors.right: parent.right
+
+                        Image {
+                            id: marker
+                            visible: model.isMerge
+                            source: "qrc:///images/flow-merge-16.png"
+                        }
+
                         Text {
                             id: sha1
                             font.family: "Inconsolata"
                             font.pointSize: 12
-                            anchors.left: parent.left
+                            anchors.left: marker.right
                             text: "[" + model.shortSha1 + "]"
                             Component.onCompleted: {
                                 d.commitsWidth = sha1.width  + 10
@@ -135,7 +143,7 @@ FlickPager {
                         MenuItem {
                             text: "Copy sha-id"
                             onTriggered: {
-                                _handler.copySha1(model.sha1)
+                                _handler.copy(model.sha1)
                             }
                         }
                         MenuItem {
