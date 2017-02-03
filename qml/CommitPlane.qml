@@ -28,6 +28,7 @@ Item {
         anchors.left: parent.left
         anchors.leftMargin: 20
         width: d.commitInfoWidth
+        visible: commit != null
     }
 
     DiffFiles {
@@ -46,6 +47,7 @@ Item {
 
     FlickPagerArrow {
         id: arrow
+        enabled: commit != null
         anchors.top: commitInfo.bottom
         source: commitInfo.state === "opened" ? "arrow-141-16" : "arrow-203-16"
         active: true

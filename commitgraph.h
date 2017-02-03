@@ -26,6 +26,8 @@ public:
     void addHead(GitBranch* branch);
     void addHead(const GitOid& oid);
 
+    void addWorkdir();
+
     GraphListModel* points() const {
         return m_pointsModel;
     }

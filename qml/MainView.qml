@@ -33,6 +33,13 @@ FocusScope {
         commitsModel: _handler.commits
         graphModel: _handler.graph
         onCommitClicked: {
+            if(commit == null) {
+                commitPlane.commit = null
+                commitPlane.diff = _handler.diff()
+                commitList.state = "commitsOnly"
+                return;
+            }
+
             if(commit.diff === null) {
                 commitPlane.commit = null
                 commitPlane.diff = null
@@ -112,4 +119,7 @@ FocusScope {
 
     Tooltip {
     }
+//    Component.onCompleted: {
+//        commitPlane.diff = _handler.diff();
+//    }
 }

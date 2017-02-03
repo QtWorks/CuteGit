@@ -79,10 +79,9 @@ FlickPager {
                         width: root.width - graph.width - graphAnnotation.width
                         height: sha1.height
                         anchors.right: parent.right
-
                         Image {
                             id: marker
-                            visible: model.isMerge
+                            visible: model.isMerge ? true : false
                             source: "qrc:///images/flow-merge-16.png"
                         }
 
@@ -132,6 +131,13 @@ FlickPager {
                             if(mouse.button === Qt.RightButton) {
                                 commitMenu.popup()
                             } else {
+                                if(model.modelData == null) {
+                                    root.commitClicked(null)
+                                    //TODO: Because active commit is used in multiple places need to make it part of some model (e.g. git handler)
+                                    activeCommit = null
+                                    return
+                                }
+
                                 root.commitClicked(model.modelData)
                                 //TODO: Because active commit is used in multiple places need to make it part of some model (e.g. git handler)
                                 activeCommit = model.modelData;

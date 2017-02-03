@@ -18,7 +18,16 @@ Item {
                 target: root
                 height: shortInfo.height
             }
+        },
+        State {
+            name: "hidden"
+            when: !root.visible
+            PropertyChanges {
+                target: root
+                height: 0
+            }
         }
+
     ]
 
     transitions: Transition {
@@ -53,7 +62,7 @@ Item {
     }
     Image {
         id: merge
-        visible: commit.isMerge
+        visible: commit ? commit.isMerge : false
         source: "qrc:///images/flow-merge.png"
         anchors.right: shortInfo.right
         anchors.rightMargin: 5

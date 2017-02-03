@@ -34,6 +34,8 @@ public:
 
     Q_INVOKABLE GitDiff* diff(GitCommit* a, GitCommit* b);
 
+    Q_INVOKABLE GitDiff* diff(); //Dif of workdir
+
     Q_INVOKABLE void copy(const QString& sha1);
 
     RepositoryModel* repositories() const

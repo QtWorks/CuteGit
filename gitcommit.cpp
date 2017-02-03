@@ -83,10 +83,14 @@ QString GitCommit::summary() const
 GitDiff* GitCommit::diff()
 {
     if(m_diff.isNull()) {
-        git_commit *parent = nullptr;
-        git_commit_parent(&parent, raw(), 0);
-        m_diff = new GitDiff(parent, raw(), repository());
-        git_commit_free(parent);
+        git_commit *parentRaw = nullptr;
+        QScopedPointer<GitCommit> parent;
+        git_commit_parent(&parentRaw, raw(), 0);
+
+        if(parentRaw) {
+            parent.reset(new GitCommit(parentRaw, repository()));
+        }
+        m_diff = GitDiff::diff(parent.data(), this);
     }
     return m_diff.data();
 }

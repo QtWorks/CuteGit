@@ -42,7 +42,12 @@ CommitModel* CommitModel::fromGraph(CommitGraph *graph)
     QList<QPointer<GraphPoint> > points = graph->points()->container();
     for(int i = 0; i < points.count(); i++) {
         GraphPoint* point = points.at(i).data();
-        model->m_container.prepend(GitCommit::fromOid(point->oid()));
+        if(!point->oid().isValid()) {
+            qDebug() << "prepend empty";
+            model->m_container.prepend(nullptr);
+        } else {
+            model->m_container.prepend(GitCommit::fromOid(point->oid()));
+        }
 //        QPointer<GitTag> tag = commit->repository()->tags().value(commit->oid());
 //        if(!tag.isNull()) {
 //            point->setTag(tag.data()->name());

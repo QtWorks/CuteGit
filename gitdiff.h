@@ -5,21 +5,25 @@
 #include <QMap>
 #include <QString>
 
-#include <diffmodel.h>
+#include <gitbase.h>
 
 struct git_commit;
 
 class GitRepository;
+class GitCommit;
+class DiffModel;
+struct git_diff;
 
-class GitDiff : public QObject
+class GitDiff : public GitBase<git_diff>
 {
     Q_OBJECT
     Q_PROPERTY(QStringList files READ files CONSTANT)
 
 public:
-    GitDiff(git_commit* a, git_commit* b, GitRepository* repository);
+    static GitDiff* diff(GitCommit* a, GitCommit* b);
+    static GitDiff* diff(GitCommit* a);
+
     ~GitDiff();
-    void readBody(git_commit* a, git_commit* b);
     void reset();
 
     Q_INVOKABLE DiffModel* model(const QString& file);
@@ -27,8 +31,11 @@ public:
     QStringList files();
 
 private:
+    GitDiff(git_diff* raw, GitRepository* repository);
+
+    void readBody(git_diff* diff);
+
     QMap<QString, QPointer<DiffModel> > m_diffList;
-    GitRepository* m_repository;
 };
 
 #endif // GITDIFF_H

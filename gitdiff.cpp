@@ -1,44 +1,99 @@
 #include "gitdiff.h"
 
 #include <gitrepository.h>
+#include <diffmodel.h>
+#include <gitcommit.h>
 
 #include <QDebug>
 
 #include <git2/types.h>
 #include <git2/diff.h>
+#include <git2/tree.h>
 #include <git2/commit.h>
 
-GitDiff::GitDiff(git_commit* a, git_commit* b, GitRepository *repository) : QObject()
-  ,m_repository(repository)
+GitDiff::GitDiff(git_diff *raw, GitRepository* repository) : GitBase(raw, repository)
 {
     Q_ASSERT_X(m_repository, "GitDiff", "Repository of NULL");
     connect(m_repository, &GitRepository::destroyed, this, &GitDiff::deleteLater);
-    readBody(a, b);
+}
+
+GitDiff* GitDiff::diff(GitCommit* a, GitCommit* b)
+{
+    GitDiff* diff = nullptr;
+
+    git_diff *diffRaw = nullptr;
+
+    git_tree *aTree = nullptr;
+    git_tree *bTree = nullptr;
+    GitRepository* repo = nullptr;
+    bool isValid = false;
+
+    if(a == nullptr && b == nullptr) {
+        return diff;
+    }
+
+    if(a != nullptr) {
+        git_commit_tree(&aTree, a->raw());
+        repo = a->repository();
+        isValid |= a->isValid();
+    }
+
+    if(b != nullptr) {
+        git_commit_tree(&bTree, b->raw());
+        if(repo != nullptr && repo != b->repository()) {
+            qDebug() << "Requested diff from different repositories";
+            return diff;
+        }
+        repo = b->repository();
+        isValid |= b->isValid();
+    }
+
+    if(!isValid) {
+        qDebug() << "Both compared commits are invalid";
+        return diff;
+    }
+
+    git_diff_tree_to_tree(&diffRaw, repo->raw(), aTree, bTree, nullptr);
+    git_tree_free(aTree);
+    git_tree_free(bTree);
+
+    diff = new GitDiff(diffRaw,repo);
+    diff->readBody(diffRaw);
+
+    return diff;
+}
+
+GitDiff* GitDiff::diff(GitCommit* a)
+{
+    GitDiff* diff = nullptr;
+    git_diff *diffRaw = nullptr;
+    git_tree *aTree = nullptr;
+
+    if(a == nullptr) {
+        return nullptr;
+    }
+
+    git_commit_tree(&aTree, a->raw());
+
+    git_diff_tree_to_workdir(&diffRaw, a->repository()->raw(), aTree, nullptr);
+    git_tree_free(aTree);
+
+    diff = new GitDiff(diffRaw, a->repository());
+    diff->readBody(diffRaw);
+
+    return diff;
 }
 
 GitDiff::~GitDiff()
 {
     reset();
+    git_diff_free(m_raw);
 }
 
-void GitDiff::readBody(git_commit *a, git_commit *b)
+void GitDiff::readBody(git_diff *diff)
 {
-    git_diff *diff = nullptr;
-
-    git_tree *aTree = nullptr;
-    git_tree *bTree = nullptr;
-
     git_diff_find_options similarityOpts;
 
-    if(a != nullptr) {
-        git_commit_tree(&aTree, a);
-    }
-
-    if(b != nullptr) {
-        git_commit_tree(&bTree, b);
-    }
-
-    git_diff_tree_to_tree(&diff, m_repository->raw(), aTree, bTree, nullptr);
 
     git_diff_find_init_options(&similarityOpts, GIT_DIFF_FIND_OPTIONS_VERSION);
     git_diff_find_similar(diff, &similarityOpts);
@@ -100,10 +155,6 @@ void GitDiff::readBody(git_commit *a, git_commit *b)
         diff->m_diffList[newFileName]->setType(delta->status);
         return 0;
     }, this);
-
-    git_diff_free(diff);
-    git_tree_free(aTree);
-    git_tree_free(bTree);
 }
 
 void GitDiff::reset()

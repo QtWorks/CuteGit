@@ -172,3 +172,16 @@ GraphPoint* CommitGraph::point(int i)
 {
     return m_sortedPoints.at(i);
 }
+
+void CommitGraph::addWorkdir()
+{
+    GraphPoint* point = new GraphPoint(GitOid(), this);
+    m_points.insert(GitOid(), new GraphPoint(GitOid(), this));
+    m_sortedPoints.last()->addChildPoint(point);
+    m_sortedPoints.append(point);
+    for(int i = 0; i < m_sortedPoints.count(); i++) {
+        GraphPoint* point = m_sortedPoints.at(i);
+        point->setY(m_sortedPoints.count() - i - 1);
+    }
+    m_pointsModel->reset(m_sortedPoints);
+}

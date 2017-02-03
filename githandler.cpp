@@ -20,6 +20,7 @@
 #include <branchlistmodel.h>
 #include <taglistmodel.h>
 #include <gitconsole.h>
+#include <graphpoint.h>
 
 GitHandler::GitHandler() : QObject()
   ,m_repositories(new RepositoryModel(this))
@@ -100,9 +101,21 @@ GitDiff* GitHandler::diff(GitCommit* a, GitCommit* b)
 
     Q_ASSERT_X(a->repository() == b->repository(), "GitHandler", "Cross repository diff requested");
 
-    m_activeDiff = new GitDiff(a->raw(), b->raw(), a->repository());
+    m_activeDiff = GitDiff::diff(a, b);
     return m_activeDiff.data();
 }
+
+GitDiff* GitHandler::diff()
+{
+    if(!m_activeDiff.isNull()) {
+        m_activeDiff->deleteLater();
+    }
+
+    QScopedPointer<GitCommit> commit(GitCommit::fromOid(activeRepo()->head()));
+    m_activeDiff = GitDiff::diff(commit.data());
+    return m_activeDiff.data();
+}
+
 
 void GitHandler::setActiveDiff(GitDiff* activeDiff)
 {
@@ -151,6 +164,7 @@ void GitHandler::updateModels()
         qDebug() << "Next head " << branch->fullName();
         graph->addHead(branch);
     }
+    graph->addWorkdir();
 
     m_graph->deleteLater();
     m_graph = graph;
