@@ -86,7 +86,7 @@ FocusScope {
 
     Rectangle {
         id: dimmingPlane
-        anchors.fill: parent
+        anchors.fill: commitList
         MouseArea {
             anchors.fill: parent
         }

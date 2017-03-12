@@ -20,7 +20,7 @@ class GitHandler : public QObject
     Q_OBJECT
     Q_PROPERTY(RepositoryModel* repositories READ repositories NOTIFY repositoriesChanged)
     Q_PROPERTY(CommitGraph* graph READ graph NOTIFY graphChanged)
-    Q_PROPERTY(GitRepository* activeRepo READ activeRepo CONSTANT)
+    Q_PROPERTY(GitRepository* activeRepo READ activeRepo NOTIFY activeRepoChanged)
     Q_PROPERTY(GitDiff* activeDiff READ activeDiff WRITE setActiveDiff NOTIFY activeDiffChanged)
     Q_PROPERTY(CommitModel* commits READ commits WRITE setCommits NOTIFY commitsChanged)
     Q_PROPERTY(BranchListModel* branchList READ branchList CONSTANT)
@@ -33,6 +33,7 @@ public:
     virtual ~GitHandler();
     Q_INVOKABLE void open(const QString &path);
     Q_INVOKABLE void open(const QUrl &url);
+    Q_INVOKABLE void activateRepository(int i);
 
     Q_INVOKABLE void diff(GitCommit* a, GitCommit* b);
 
@@ -98,15 +99,14 @@ public slots:
         emit commitsChanged(commits);
     }
 
+    void setActiveRepo(GitRepository* repo);
+
 signals:
+    void activeRepoChanged(GitRepository* activeRepo);
     void repositoriesChanged(RepositoryModel* repositories);
-
     void graphChanged(CommitGraph* graph);
-
     void activeDiffChanged(GitDiff* activeDiff);
-
     void commitsChanged(CommitModel* commits);
-
     void isBusyChanged();
 
 protected:

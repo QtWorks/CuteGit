@@ -87,6 +87,10 @@ public:
         endResetModel();
     }
 
+    T* at(int i) {
+        return m_container.at(i);
+    }
+
 protected:
     void clear() {
 //TODO: need to verify if wee really should cleanup these commits.

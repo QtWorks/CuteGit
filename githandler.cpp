@@ -66,30 +66,48 @@ void GitHandler::open(const QString &path)
         return;
     }
 
-    if(m_activeRepo) {
-        m_activeRepoWatcher->removePath(m_activeRepo->root());
-    }
+    GitRepository* repo = new GitRepository(QString::fromUtf8(root.ptr, root.size));
+    setActiveRepo(repo);
+    m_repositories->addRepository(repo);
+}
 
-    m_activeRepo = new GitRepository(QString::fromUtf8(root.ptr, root.size));
-    if(!m_activeRepo->isValid()) {
+void GitHandler::activateRepository(int i)
+{
+    GitRepository* repo = m_repositories->at(i);
+    setActiveRepo(repo);
+    m_repositories->setActiveRepositoryIndex(i);
+}
+
+void GitHandler::setActiveRepo(GitRepository* repo)
+{
+    if(repo == nullptr || !repo->isValid()) {
         qDebug() << lastError();
         return;
     }
+
+    if(m_activeRepo) {
+        disconnect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, m_activeRepo, &GitRepository::readBranches);
+        disconnect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, m_activeRepo, &GitRepository::readRemotes);
+        disconnect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, m_activeRepo, &GitRepository::readTags);
+        disconnect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, this, &GitHandler::updateModels);
+        m_activeRepoWatcher->removePath(m_activeRepo->root());
+
+        disconnect(m_activeRepo, &GitRepository::branchesChanged, this, &GitHandler::updateModels);
+
+    }
+
+    m_activeRepo = repo;
+
     ColorHandler::instance().updateColors(m_activeRepo);
     m_constantHead = m_activeRepo->head();
     m_console->setRepository(m_activeRepo);
-
     connect(m_activeRepo, &GitRepository::branchesChanged, this, &GitHandler::updateModels);
     updateModels();
 
     m_activeRepoWatcher->addPath(m_activeRepo->root());
-    connect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, m_activeRepo, &GitRepository::readBranches);
-    connect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, m_activeRepo, &GitRepository::readRemotes);
-    connect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, m_activeRepo, &GitRepository::readTags);
-    connect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, this, &GitHandler::updateModels);
-    //TODO: opened repositories configuraion TBD
-    //    m_repositories->add(m_activeRepo);
+    activeRepoChanged(m_activeRepo);
 }
+
 
 QString GitHandler::lastError() const
 {

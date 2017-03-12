@@ -12,6 +12,16 @@ Item {
     Row {
         spacing: 10
         height: 50
+        ComboBox {
+            id: repositories
+            width: 400
+            model: _handler.repositories
+            textRole: "name"
+            onActivated: {
+                _handler.activateRepository(index)
+            }
+        }
+
         Text {
             text: "Active repository" + repoOpenDialog.fileUrl
         }
@@ -30,7 +40,7 @@ Item {
             selectFolder: true
             selectMultiple: false
             onAccepted: {
-    //TODO: repo open is not available
+                //TODO: repo open is not available
                 _handler.open(repoOpenDialog.fileUrl)
             }
         }
