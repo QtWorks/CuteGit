@@ -12,7 +12,7 @@ template <typename T>
 class GitBase : public QObject
 {
 public:
-    GitBase(T* raw, GitRepository* parent) : QObject(parent)
+    GitBase(T* raw, GitRepository* parent) : QObject()
       ,m_raw(raw)
       ,m_repository(parent)
     {}

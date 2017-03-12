@@ -49,7 +49,7 @@ GitDiff* GitDiff::diff(GitCommit* a, GitCommit* b)
     }
 
     if(!isValid) {
-        qDebug() << "Both compared commits are invalid";
+        qCritical() << "Both compared commits are invalid";
         return diff;
     }
 
@@ -59,6 +59,8 @@ GitDiff* GitDiff::diff(GitCommit* a, GitCommit* b)
 
     diff = new GitDiff(diffRaw,repo);
     diff->readBody(diffRaw);
+    diff->moveToThread(a->repository()->thread());
+    diff->setParent(a->repository());
 
     return diff;
 }
@@ -70,6 +72,7 @@ GitDiff* GitDiff::diff(GitCommit* a)
     git_tree *aTree = nullptr;
 
     if(a == nullptr) {
+        qCritical() << "Requested diff for zero-pointer commit";
         return nullptr;
     }
 
@@ -80,7 +83,10 @@ GitDiff* GitDiff::diff(GitCommit* a)
 
     diff = new GitDiff(diffRaw, a->repository());
     diff->readBody(diffRaw);
+    diff->moveToThread(a->repository()->thread());
+    diff->setParent(a->repository());
 
+    delete a;//TODO need indication if "a" could be deleted
     return diff;
 }
 

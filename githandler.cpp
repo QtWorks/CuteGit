@@ -5,6 +5,7 @@
 #include <QFileSystemWatcher>
 #include <QGuiApplication>
 #include <QClipboard>
+#include <QtConcurrentRun>
 #include <qqml.h>
 
 #include <gitrepository.h>
@@ -32,8 +33,16 @@ GitHandler::GitHandler() : QObject()
   ,m_tagList(new TagListModel(this))
   ,m_activeRepoWatcher(new QFileSystemWatcher(this))
   ,m_console(new GitConsole(this))
-{
+{    
     git_libgit2_init();
+    connect(&m_diffTask, &QFutureWatcher<GitDiff*>::finished, this, &GitHandler::onDiffReady);
+    connect(&m_graphTask, &QFutureWatcher<CommitGraph*>::finished, this, &GitHandler::onGraphReady);
+
+    connect(&m_graphTask, &QFutureWatcher<CommitGraph*>::started, this, &GitHandler::isBusyChanged);
+    connect(&m_graphTask, &QFutureWatcher<CommitGraph*>::finished, this, &GitHandler::isBusyChanged);
+    connect(&m_graphTask, &QFutureWatcher<CommitGraph*>::canceled, this, &GitHandler::isBusyChanged);
+    connect(&m_graphTask, &QFutureWatcher<CommitGraph*>::paused, this, &GitHandler::isBusyChanged);
+    connect(&m_graphTask, &QFutureWatcher<CommitGraph*>::resumed, this, &GitHandler::isBusyChanged);
 }
 
 GitHandler::~GitHandler()
@@ -93,7 +102,7 @@ QString GitHandler::lastError() const
     return QString();
 }
 
-GitDiff* GitHandler::diff(GitCommit* a, GitCommit* b)
+void GitHandler::diff(GitCommit* a, GitCommit* b)
 {
     if(!m_activeDiff.isNull()) {
         m_activeDiff->deleteLater();
@@ -101,19 +110,35 @@ GitDiff* GitHandler::diff(GitCommit* a, GitCommit* b)
 
     Q_ASSERT_X(a->repository() == b->repository(), "GitHandler", "Cross repository diff requested");
 
-    m_activeDiff = GitDiff::diff(a, b);
-    return m_activeDiff.data();
+    if(m_diffTask.isRunning()) {
+        m_diffTask.cancel();
+    }
+
+    qDebug() << "Diff start thread: " << QThread::currentThreadId();
+    QFuture<GitDiff*> future = QtConcurrent::run(&GitDiff::diff, a, b);
+    m_diffTask.setFuture(future);
 }
 
-GitDiff* GitHandler::diff()
+void GitHandler::diff()
 {
     if(!m_activeDiff.isNull()) {
         m_activeDiff->deleteLater();
     }
 
-    QScopedPointer<GitCommit> commit(GitCommit::fromOid(activeRepo()->head()));
-    m_activeDiff = GitDiff::diff(commit.data());
-    return m_activeDiff.data();
+    GitCommit* commit = GitCommit::fromOid(activeRepo()->head());
+
+    QFuture<GitDiff*> future = QtConcurrent::run(&GitDiff::diff, commit);
+    m_diffTask.setFuture(future);
+}
+
+void GitHandler::diffReset()
+{
+    delete m_activeDiff;
+}
+
+void GitHandler::onDiffReady()
+{
+    setActiveDiff(m_diffTask.result());
 }
 
 
@@ -141,9 +166,23 @@ void GitHandler::updateModels()
     if(!m_activeRepo) {
         return;
     }
+    BranchContainer &branches = m_activeRepo->branches();
     m_activeRepo->updateHead();
 
-    BranchContainer &branches = m_activeRepo->branches();
+    m_graphTask.cancel();
+    m_graphTask.setFuture(QtConcurrent::run(&GitHandler::updateGraph, m_activeRepo->head(), branches));
+
+    m_branchList->reset(branches.values());
+    m_tagList->reset(m_activeRepo->tags().values());
+}
+
+void GitHandler::copy(const QString& sha1)
+{
+    QGuiApplication::clipboard()->setText(sha1);
+}
+
+CommitGraph* GitHandler::updateGraph(const GitOid &head, const BranchContainer &branches)
+{
     CommitGraph* graph = new CommitGraph();
 
     bool headIsBranch = false;
@@ -157,7 +196,7 @@ void GitHandler::updateModels()
 //    }
 
     if(!headIsBranch) {
-        graph->addHead(m_activeRepo->head());
+        graph->addHead(head);
     }
 
     foreach(GitBranch* branch, branches) {
@@ -165,20 +204,16 @@ void GitHandler::updateModels()
         graph->addHead(branch);
     }
     graph->addWorkdir();
+    graph->moveToThread(head.repository()->thread());
+    return graph;
+}
 
+void GitHandler::onGraphReady()
+{
     m_graph->deleteLater();
-    m_graph = graph;
-    emit graphChanged(graph);
+    m_graph = m_graphTask.result();
+    emit graphChanged(m_graph);
 
     m_commits = CommitModel::fromGraph(m_graph);
     emit commitsChanged(m_commits);
-
-    m_branchList->reset(m_activeRepo->branches().values());
-    m_tagList->reset(m_activeRepo->tags().values());
 }
-
-void GitHandler::copy(const QString& sha1)
-{
-    QGuiApplication::clipboard()->setText(sha1);
-}
-

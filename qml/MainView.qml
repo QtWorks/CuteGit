@@ -10,7 +10,7 @@ FocusScope {
     TopBar {
         id: topBar
         onCloseClicked: {
-            commitPlane.diff = null
+            _handler.diffReset()
             commitPlane.commit = null
             commitList.state = "full"
             commitList.activeCommit = null
@@ -35,14 +35,14 @@ FocusScope {
         onCommitClicked: {
             if(commit == null) {
                 commitPlane.commit = null
-                commitPlane.diff = _handler.diff()
+                _handler.diff()
                 commitList.state = "commitsOnly"
                 return;
             }
 
             if(commit.diff === null) {
                 commitPlane.commit = null
-                commitPlane.diff = null
+                _handler.diffReset()
                 commitList.state = "full"
                 return
             }
@@ -61,7 +61,7 @@ FocusScope {
                 root.commitsForDiff.push(commit)
                 if(root.commitsForDiff.length === 2) {
                     commitPlane.commit = root.commitsForDiff[1]
-                    commitPlane.diff = _handler.diff(root.commitsForDiff[0], root.commitsForDiff[1])
+                    _handler.diff(root.commitsForDiff[0], root.commitsForDiff[1])
                     root.commitsForDiff=[]
                 }
             }
@@ -74,8 +74,30 @@ FocusScope {
         anchors.right: parent.right
         anchors.top: topBar.bottom
         anchors.bottom: consoleContol.top
+        Binding {
+            target: commitPlane
+            property: "diff"
+            value: _handler.activeDiff
+        }
+
 //        visible: diff != null
 //        opacity: diff != null ? 1.0 : 0.0
+    }
+
+    Rectangle {
+        id: dimmingPlane
+        anchors.fill: parent
+        MouseArea {
+            anchors.fill: parent
+        }
+        color: "black"
+        opacity: _handler.isBusy ? 0.4 : 0.0
+        visible: opacity > 0
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 500
+            }
+        }
     }
 
     ConsoleControl {
@@ -119,7 +141,4 @@ FocusScope {
 
     Tooltip {
     }
-//    Component.onCompleted: {
-//        commitPlane.diff = _handler.diff();
-//    }
 }

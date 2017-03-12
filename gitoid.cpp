@@ -8,7 +8,7 @@ GitOid::GitOid() : QObject()
 {
 }
 
-GitOid::GitOid(const git_oid *oid, GitRepository *parent) : QObject(parent)
+GitOid::GitOid(const git_oid *oid, GitRepository *parent) : QObject()
   ,m_oid({0})
   ,m_repository(parent)
 {

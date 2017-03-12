@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include <repositorymodel.h>
+#include <QFutureWatcher>
 
 class CommitModel;
 class CommitGraph;
@@ -25,6 +26,7 @@ class GitHandler : public QObject
     Q_PROPERTY(BranchListModel* branchList READ branchList CONSTANT)
     Q_PROPERTY(TagListModel* tagList READ tagList CONSTANT)
     Q_PROPERTY(GitConsole* console READ console CONSTANT)
+    Q_PROPERTY(bool isBusy READ isBusy NOTIFY isBusyChanged)
 
 public:
     GitHandler();
@@ -32,9 +34,11 @@ public:
     Q_INVOKABLE void open(const QString &path);
     Q_INVOKABLE void open(const QUrl &url);
 
-    Q_INVOKABLE GitDiff* diff(GitCommit* a, GitCommit* b);
+    Q_INVOKABLE void diff(GitCommit* a, GitCommit* b);
 
-    Q_INVOKABLE GitDiff* diff(); //Dif of workdir
+    Q_INVOKABLE void diff(); //Dif of workdir
+    Q_INVOKABLE void diffReset();
+    void onDiffReady();
 
     Q_INVOKABLE void copy(const QString& sha1);
 
@@ -77,6 +81,11 @@ public:
         return m_console;
     }
 
+    bool isBusy() const
+    {
+        return !m_graphTask.isCanceled() && !m_graphTask.isFinished();
+    }
+
 public slots:
     void setActiveDiff(GitDiff* activeDiff);
 
@@ -98,11 +107,16 @@ signals:
 
     void commitsChanged(CommitModel* commits);
 
+    void isBusyChanged();
+
 protected:
     QString lastError() const;
 
 private:
     void updateModels();
+
+    static CommitGraph* updateGraph(const GitOid& head, const BranchContainer &branches);
+    void onGraphReady();
 
     RepositoryModel* m_repositories;
     CommitModel* m_commits;
@@ -114,6 +128,10 @@ private:
     QFileSystemWatcher* m_activeRepoWatcher;
     GitConsole* m_console;
     GitOid m_constantHead;
+    QFutureWatcher<GitDiff*> m_diffTask;
+    QFutureWatcher<CommitGraph*> m_graphTask;
+
+    bool m_isBusy;
 };
 
 #endif // GITHANDLER_H
