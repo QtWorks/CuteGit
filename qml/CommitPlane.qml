@@ -24,11 +24,11 @@ Item {
 
     CommitInfo {
         id: commitInfo
+        model: root.commit
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.leftMargin: 20
         width: d.commitInfoWidth
-        visible: commit != null
     }
 
     DiffFiles {
@@ -99,6 +99,7 @@ Item {
                 font.pointSize: 12
                 selectByMouse: true
                 readOnly: true
+                activeFocusOnPress: false
             }
         }
     }
@@ -136,11 +137,11 @@ Item {
         anchors.fill: diffViewport
         active: fileDiff.text == ""
         visible: diff != null
-        text: "Select file on side panel"
+        text: qsTr("Select file on side panel")
     }
 
     AreaPlaceholder {
         active: diff == null
-        text: "Select commit in graph"
+        text: qsTr("Select commit in graph")
     }
 }

@@ -87,9 +87,14 @@ public:
         endResetModel();
     }
 
-    T* at(int i) {
+    T* at(int i) const {
         return m_container.at(i);
     }
+
+    int indexOf(T* value) const {
+        return m_container.indexOf(value);
+    }
+
 
 protected:
     void clear() {

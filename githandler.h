@@ -31,8 +31,8 @@ class GitHandler : public QObject
 public:
     GitHandler();
     virtual ~GitHandler();
-    Q_INVOKABLE void open(const QString &path);
-    Q_INVOKABLE void open(const QUrl &url);
+    Q_INVOKABLE GitRepository *open(const QString &path);
+    Q_INVOKABLE GitRepository *open(const QUrl &url);
     Q_INVOKABLE void activateRepository(int i);
 
     Q_INVOKABLE void diff(GitCommit* a, GitCommit* b);
@@ -117,6 +117,7 @@ private:
 
     static CommitGraph* updateGraph(const GitOid& head, const BranchContainer &branches);
     void onGraphReady();
+    void loadCachedRepos();
 
     RepositoryModel* m_repositories;
     CommitModel* m_commits;
@@ -130,7 +131,6 @@ private:
     GitOid m_constantHead;
     QFutureWatcher<GitDiff*> m_diffTask;
     QFutureWatcher<CommitGraph*> m_graphTask;
-
     bool m_isBusy;
 };
 

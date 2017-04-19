@@ -59,7 +59,6 @@ int main(int argc, char *argv[])
     });
 
     GitHandler handler;
-    handler.open("/home/semlanik/Projects/HCAT/hmi_hcat/demo/default/HCAT/");
     view.rootContext()->setContextProperty("_handler", &handler);
     view.setSource(QUrl("qrc:/qml/MainView.qml"));
     view.setResizeMode(QQuickView::SizeRootObjectToView);

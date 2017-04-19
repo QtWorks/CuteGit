@@ -5,8 +5,6 @@
         <file>qml/Graph.qml</file>
         <file>qml/CommitList.qml</file>
         <file>qml/DiffFiles.qml</file>
-        <file>images/x-mark-3-48.png</file>
-        <file>images/x-mark-3-48_active.png</file>
         <file>images/x-mark-3-24_active.png</file>
         <file>images/x-mark-3-24.png</file>
         <file>qml/TopBar.qml</file>
@@ -52,5 +50,8 @@
         <file>images/erase-24_active.png</file>
         <file>images/flow-merge.png</file>
         <file>images/flow-merge-16.png</file>
+        <file>qml/Separator.qml</file>
+        <file>images/question-mark-4-24.png</file>
+        <file>images/question-mark-4-24_active.png</file>
     </qresource>
 </RCC>

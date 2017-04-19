@@ -28,6 +28,7 @@ class GitRepository : public QObject
     Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QString path READ path NOTIFY rootChanged)
     Q_PROPERTY(GitOid head READ head WRITE setHead NOTIFY headChanged)
+    Q_PROPERTY(QString id READ id NOTIFY rootChanged)
 
 public:
     GitRepository(const QString &root);
@@ -70,11 +71,14 @@ public:
         return m_head;
     }
 
+    QString id() const;
+
     Q_INVOKABLE bool isHead(const GitOid& oid) const {
         return m_head == oid;
     }
 
     Q_INVOKABLE void checkout(QObject* object);
+
 
 public slots:
     void setRoot(QString root) {

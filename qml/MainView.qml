@@ -79,9 +79,6 @@ FocusScope {
             property: "diff"
             value: _handler.activeDiff
         }
-
-//        visible: diff != null
-//        opacity: diff != null ? 1.0 : 0.0
     }
 
     Rectangle {
@@ -105,6 +102,14 @@ FocusScope {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
+    }
+
+    Connections {
+        target: _handler
+        onActiveRepoChanged: {
+            commitPlane.diff = null
+            commitPlane.commit = null
+        }
     }
 
     Keys.onPressed: {

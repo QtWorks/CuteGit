@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QDir>
+#include <QCryptographicHash>
 
 #include <gitbranch.h>
 #include <gitcommit.h>
@@ -11,7 +12,6 @@
 #include <gitdiff.h>
 
 #include <git2.h>
-
 
 GitRepository::GitRepository(const QString& root) : QObject(nullptr)
 {
@@ -23,7 +23,7 @@ GitRepository::GitRepository(const QString& root) : QObject(nullptr)
 
     m_root = root;
     m_path = git_repository_workdir(m_raw);
-    m_name = m_path;//TODO: replace with Human readable name
+    m_name = m_path.split("/", QString::SkipEmptyParts).last();
     qDebug() << "New repo:" << m_name << m_root << m_path;
     readBranches();
     readTags();
@@ -50,8 +50,7 @@ void GitRepository::readBranches()
     git_branch_t branchType;
     git_branch_iterator* iter;
     git_branch_iterator_new(&iter, m_raw, GIT_BRANCH_ALL);
-    while(git_branch_next(&branchRef, &branchType, iter) == 0)
-    {
+    while(git_branch_next(&branchRef, &branchType, iter) == 0) {
         GitBranch* branch = new GitBranch(branchRef, branchType, this);
         m_branches.insert(branch->fullName(), QPointer<GitBranch>(branch));
         qDebug() << branch->fullName();
@@ -63,8 +62,7 @@ void GitRepository::readBranches()
 void GitRepository::readTags()
 {
     git_tag_foreach(raw(),
-                [](const char *name, git_oid *oid, void *payload) -> int
-    {
+                [](const char *name, git_oid *oid, void *payload) -> int {
         Q_UNUSED(payload)
         Q_UNUSED(name)
 
@@ -119,8 +117,7 @@ void GitRepository::checkout(QObject* object)
             const git_diff_file *baseline,
             const git_diff_file *target,
             const git_diff_file *workdir,
-            void *payload) -> int
-    {
+            void *payload) -> int {
         //TODO: make popup with progressbar
 //        qDebug() << "path:" << path;
 //        switch (why) {
@@ -202,3 +199,8 @@ void GitRepository::updateHead()
     qDebug() << "Repo head" << m_head.toString();
 }
 
+
+QString GitRepository::id() const
+{
+    return QCryptographicHash::hash(name().toUtf8() + path().toUtf8(), QCryptographicHash::Sha1).toHex();
+}
