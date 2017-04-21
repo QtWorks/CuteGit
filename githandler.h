@@ -31,8 +31,8 @@ class GitHandler : public QObject
 public:
     GitHandler();
     virtual ~GitHandler();
-    Q_INVOKABLE GitRepository *open(const QString &path);
-    Q_INVOKABLE GitRepository *open(const QUrl &url);
+    Q_INVOKABLE void open(const QString &path, bool activate = false);
+    Q_INVOKABLE void open(const QUrl &url, bool activate = false);
     Q_INVOKABLE void activateRepository(int i);
 
     Q_INVOKABLE void diff(GitCommit* a, GitCommit* b);
@@ -128,10 +128,11 @@ private:
     TagListModel* m_tagList;
     QFileSystemWatcher* m_activeRepoWatcher;
     GitConsole* m_console;
-    GitOid m_constantHead;
     QFutureWatcher<GitDiff*> m_diffTask;
     QFutureWatcher<CommitGraph*> m_graphTask;
     bool m_isBusy;
+
+    //    GitOid m_constantHead; //TODO:
 };
 
 #endif // GITHANDLER_H

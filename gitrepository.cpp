@@ -33,6 +33,7 @@ GitRepository::GitRepository(const QString& root) : QObject(nullptr)
 
 GitRepository::~GitRepository()
 {
+    qDebug() << "GitRepository::~GitRepository";
     close();
 }
 

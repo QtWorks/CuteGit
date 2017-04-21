@@ -1,5 +1,7 @@
 QT += qml quick widgets concurrent
 
+TARGET = CuteGit
+
 TEMPLATE = app
 
 LIBS += -lgit2

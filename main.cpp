@@ -31,23 +31,23 @@ int main(int argc, char *argv[])
     QFontDatabase::addApplicationFont(":/fonts/Inconsolata.otf");
     QQuickView view;
 
-    qmlRegisterUncreatableType<GitOid>("org.semlanik.nicegit", 1, 0, "GitOid", "Owned only by GitHandler");
-    qmlRegisterUncreatableType<CommitModel>("org.semlanik.nicegit", 1, 0, "CommitModel", "Owned only by GitHandler");
-    qmlRegisterUncreatableType<CommitGraph>("org.semlanik.nicegit", 1, 0, "CommitGraph", "Owned only by GitHandler");
-    qmlRegisterUncreatableType<GraphPoint>("org.semlanik.nicegit", 1, 0, "GraphPoint", "Owned only by GitHandler");
-    qmlRegisterUncreatableType<RepositoryModel>("org.semlanik.nicegit", 1, 0, "RepositoryModel", "Owned only by GitHandler");
-    qmlRegisterUncreatableType<GitRepository>("org.semlanik.nicegit", 1, 0, "GitRepository", "Owned only by GitHandler");
-    qmlRegisterUncreatableType<GitBranch>("org.semlanik.nicegit", 1, 0, "GitBranch", "Owned only by GitHandler");
-    qmlRegisterUncreatableType<GitHandler>("org.semlanik.nicegit", 1, 0, "GitHandler", "Global for qml");
-    qmlRegisterUncreatableType<GitTag>("org.semlanik.nicegit", 1, 0, "GitTag", "Global for qml");
-    qmlRegisterUncreatableType<GitDiff>("org.semlanik.nicegit", 1, 0, "GitDiff", "Global for qml");
-    qmlRegisterUncreatableType<GitCommit>("org.semlanik.nicegit", 1, 0, "GitCommit", "Global for qml");
-    qmlRegisterUncreatableType<GraphListModel>("org.semlanik.nicegit", 1, 0, "GraphListModel", "Owned only by GitHandler");
-    qmlRegisterUncreatableType<BranchListModel>("org.semlanik.nicegit", 1, 0, "BranchListModel", "Owned only by GitHandler");
-    qmlRegisterUncreatableType<TagListModel>("org.semlanik.nicegit", 1, 0, "TagListModel", "Owned only by GitHandler");
-    qmlRegisterUncreatableType<GitConsole>("org.semlanik.nicegit", 1, 0, "GitConsole", "Owned only by GitHandler");
-    qmlRegisterUncreatableType<DiffModel>("org.semlanik.nicegit", 1, 0, "DiffModel", "Owned only by GitHandler");
-    qmlRegisterSingletonType<TooltipViewModel>("org.semlanik.nicegit", 1, 0,"TooltipViewModel",
+    qmlRegisterUncreatableType<GitOid>("org.semlanik.cutegit", 1, 0, "GitOid", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<CommitModel>("org.semlanik.cutegit", 1, 0, "CommitModel", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<CommitGraph>("org.semlanik.cutegit", 1, 0, "CommitGraph", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<GraphPoint>("org.semlanik.cutegit", 1, 0, "GraphPoint", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<RepositoryModel>("org.semlanik.cutegit", 1, 0, "RepositoryModel", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<GitRepository>("org.semlanik.cutegit", 1, 0, "GitRepository", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<GitBranch>("org.semlanik.cutegit", 1, 0, "GitBranch", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<GitHandler>("org.semlanik.cutegit", 1, 0, "GitHandler", "Global for qml");
+    qmlRegisterUncreatableType<GitTag>("org.semlanik.cutegit", 1, 0, "GitTag", "Global for qml");
+    qmlRegisterUncreatableType<GitDiff>("org.semlanik.cutegit", 1, 0, "GitDiff", "Global for qml");
+    qmlRegisterUncreatableType<GitCommit>("org.semlanik.cutegit", 1, 0, "GitCommit", "Global for qml");
+    qmlRegisterUncreatableType<GraphListModel>("org.semlanik.cutegit", 1, 0, "GraphListModel", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<BranchListModel>("org.semlanik.cutegit", 1, 0, "BranchListModel", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<TagListModel>("org.semlanik.cutegit", 1, 0, "TagListModel", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<GitConsole>("org.semlanik.cutegit", 1, 0, "GitConsole", "Owned only by GitHandler");
+    qmlRegisterUncreatableType<DiffModel>("org.semlanik.cutegit", 1, 0, "DiffModel", "Owned only by GitHandler");
+    qmlRegisterSingletonType<TooltipViewModel>("org.semlanik.cutegit", 1, 0,"TooltipViewModel",
                                                [](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject*
     {
         Q_UNUSED(engine)

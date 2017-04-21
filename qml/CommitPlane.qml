@@ -1,6 +1,6 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.4
-import org.semlanik.nicegit 1.0
+import org.semlanik.cutegit 1.0
 
 Item {
     id: root

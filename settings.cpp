@@ -13,7 +13,7 @@ namespace {
 
 Settings::Settings() : QObject()
   ,m_settings("org.semlanik",
-              "NiceGit")
+              "CuteGit")
 {
 }
 

@@ -1,7 +1,7 @@
 import QtQuick 2.0
 import QtGraphicalEffects 1.0
 
-import org.semlanik.nicegit 1.0
+import org.semlanik.cutegit 1.0
 
 ListView {
     id: root

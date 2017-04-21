@@ -53,27 +53,28 @@ GitHandler::~GitHandler()
     git_libgit2_shutdown();
 }
 
-GitRepository *GitHandler::open(const QUrl &url)
+void GitHandler::open(const QUrl &url, bool activate)
 {
     if(url.isLocalFile()) {
-        return open(url.toLocalFile());
+        open(url.toLocalFile(), activate);
     }
-    return nullptr;
 }
 
-GitRepository *GitHandler::open(const QString &path)
+void GitHandler::open(const QString &path, bool activate)
 {
     qDebug() << "path" << path;
     git_buf root = {0,0,0};
     if(git_repository_discover(&root, path.toUtf8().data(), 0, NULL) != 0) {
         qDebug() << lastError();
-        return nullptr;
+        return;
     }
 
     GitRepository* repo = new GitRepository(QString::fromUtf8(root.ptr, root.size));
     Settings::instance()->add(repo);
     m_repositories->addRepository(repo);
-    return repo;
+    if(activate) {
+        setActiveRepo(repo);
+    }
 }
 
 void GitHandler::activateRepository(int i)
@@ -109,14 +110,12 @@ void GitHandler::setActiveRepo(GitRepository* repo)
 
 
     ColorHandler::instance().updateColors(m_activeRepo);
-    m_constantHead = m_activeRepo->head();
+//    m_constantHead = m_activeRepo->head(); // TODO
     m_console->setRepository(m_activeRepo);
-    connect(m_activeRepo, &GitRepository::branchesChanged, this, &GitHandler::updateModels);
     updateModels();
 
     m_activeRepoWatcher->addPath(m_activeRepo->root());
 
-    qDebug() << "Active repo index: " << m_repositories->indexOf(m_activeRepo);
     m_repositories->setActiveRepositoryIndex(m_repositories->indexOf(m_activeRepo));
     activeRepoChanged(m_activeRepo);
 
@@ -243,28 +242,30 @@ CommitGraph* GitHandler::updateGraph(const GitOid &head, const BranchContainer &
 
 void GitHandler::onGraphReady()
 {
+    m_commits->deleteLater();
+    m_commits = nullptr;
+    emit commitsChanged(m_commits);
+
     m_graph->deleteLater();
-    m_graph = m_graphTask.result();
+    m_graph = nullptr;
     emit graphChanged(m_graph);
 
+    m_graph = m_graphTask.result();
     m_commits = CommitModel::fromGraph(m_graph);
+
+    emit graphChanged(m_graph);
     emit commitsChanged(m_commits);
 }
 
 void GitHandler::loadCachedRepos()
 {
     QString activeRepo = Settings::instance()->loadLastRepo();
-    GitRepository* lastRepo = nullptr;
 
     QStringList cachedRepos;
     Settings::instance()->load(cachedRepos);
 
     foreach (QString repoPath, cachedRepos) {
-        GitRepository* repo = open(repoPath);
-        if(repo->id() == activeRepo) {
-            lastRepo = repo;
-        }
+        open(repoPath, false);
     }
-
-    setActiveRepo(lastRepo);
+//    m_repositories->ac(m_repositories->indexOf(m_activeRepo));
 }

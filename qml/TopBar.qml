@@ -82,7 +82,7 @@ Item {
         selectFolder: true
         selectMultiple: false
         onAccepted: {
-            _handler.setActiveRepo(_handler.open(repoOpenDialog.fileUrl))
+            _handler.open(repoOpenDialog.fileUrl, true)
         }
     }
 
@@ -104,7 +104,7 @@ Item {
                 textFormat: Text.RichText
                 text:"<p><b>CuteGit</b> is free opensource software. You're free to use and modify it in terms of GPLv3 license.<br/>" +
                      "You can support project by contributing your ideas and code to CuteGit repository.</p>" +
-                     "<p><b>Autor:</b> Alexey Edelev aka semlanik</p>"
+                     "<p><b>Author:</b> Alexey Edelev aka semlanik</p>"
             }
         }
     }
