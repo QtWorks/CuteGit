@@ -67,3 +67,6 @@ RESOURCES += \
 debug {
     DEFINES += DEBUG
 }
+
+target.path = /usr/bin
+INSTALLS+=target
