@@ -4,7 +4,13 @@ TARGET = CuteGit
 
 TEMPLATE = app
 
-LIBS += -lgit2
+unix {
+    LIBS += -lgit2
+}
+win32 {
+    INCLUDEPATH += $$PWD//include
+    LIBS += -L$$PWD//lib// -lgit2
+}
 
 SOURCES += \
     main.cpp \
