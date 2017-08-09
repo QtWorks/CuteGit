@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Version=1.1
+Name=CuteGit
+GenericName=Qt-based GUI for Git SCM
+Comment=CuteGit it's based on Qt framework Graphical User Interface with advanced functionality for Git SCM
+Exec=/usr/bin/CuteGit
+Categories=Utility

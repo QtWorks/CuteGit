@@ -5,8 +5,12 @@ TARGET = CuteGit
 TEMPLATE = app
 
 unix {
+    desktop.files = CuteGit.desktop
+    desktop.path = $$SYSROOT/usr/share/applications
+    INSTALLS += desktop
     LIBS += -lgit2
 }
+
 win32 {
     INCLUDEPATH += $$PWD//include
     LIBS += -L$$PWD//lib// -lgit2
@@ -70,9 +74,11 @@ HEADERS += \
 RESOURCES += \
     resources.qrc
 
+OTHER_FILES += \
+    CuteGit.desktop
 debug {
     DEFINES += DEBUG
 }
 
-target.path = /usr/bin
-INSTALLS+=target
+target.path = $$SYSROOT/usr/bin
+INSTALLS += target

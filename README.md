@@ -1,4 +1,5 @@
 # CuteGit
+CuteGit it's based on Qt framework Graphical User Interface with advanced functionality for Git SCM
 
 # Build for windows
 For building and run CuteGit on Windows, you need:
