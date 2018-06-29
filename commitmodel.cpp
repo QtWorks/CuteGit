@@ -26,7 +26,7 @@ CommitModel* CommitModel::fromBranch(GitBranch* branch)
         GitOid commitOid(&newOid, branch->repository());
         GitCommit *commit = GitCommit::fromOid(commitOid);
         if(commit != nullptr) {
-            tmpModel->add(commit);
+            tmpModel->append(commit);
         } else {
             qDebug() << "Commit is null";
         }

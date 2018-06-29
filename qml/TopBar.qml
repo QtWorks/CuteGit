@@ -42,7 +42,10 @@ Item {
         Button {
             anchors.verticalCenter: parent.verticalCenter
             text: qsTr("Add...")
-            onClicked: repoOpenDialog.open()
+            onClicked: {
+                console.log("repoOpenDialog.folder: " + repoOpenDialog.folder)
+                repoOpenDialog.open()
+            }
         }
     }
 
@@ -78,7 +81,7 @@ Item {
 
     FileDialog {
         id: repoOpenDialog
-        folder: "."
+        folder: _handler.homePath
         selectFolder: true
         selectMultiple: false
         onAccepted: {

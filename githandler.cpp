@@ -6,6 +6,7 @@
 #include <QClipboard>
 #include <QtConcurrentRun>
 #include <QDebug>
+#include <QDir>
 #include <qqml.h>
 
 #include <gitrepository.h>
@@ -34,6 +35,7 @@ GitHandler::GitHandler() : QObject()
   ,m_tagList(new TagListModel(this))
   ,m_activeRepoWatcher(new QFileSystemWatcher(this))
   ,m_console(new GitConsole(this))
+  ,m_homePath(QUrl::fromLocalFile(QDir::homePath()))
 {
     git_libgit2_init();
     connect(&m_diffTask, &QFutureWatcher<GitDiff*>::finished, this, &GitHandler::onDiffReady);

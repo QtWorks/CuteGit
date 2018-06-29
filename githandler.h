@@ -27,6 +27,7 @@ class GitHandler : public QObject
     Q_PROPERTY(TagListModel* tagList READ tagList CONSTANT)
     Q_PROPERTY(GitConsole* console READ console CONSTANT)
     Q_PROPERTY(bool isBusy READ isBusy NOTIFY isBusyChanged)
+    Q_PROPERTY(QUrl homePath READ homePath CONSTANT)
 
 public:
     GitHandler();
@@ -87,6 +88,11 @@ public:
         return !m_graphTask.isCanceled() && !m_graphTask.isFinished();
     }
 
+    QUrl homePath() const
+    {
+        return m_homePath;
+    }
+
 public slots:
     void setActiveDiff(GitDiff* activeDiff);
 
@@ -131,6 +137,7 @@ private:
     QFutureWatcher<GitDiff*> m_diffTask;
     QFutureWatcher<CommitGraph*> m_graphTask;
     bool m_isBusy;
+    QUrl m_homePath;
 
     //    GitOid m_constantHead; //TODO:
 };

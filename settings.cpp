@@ -17,7 +17,7 @@ Settings::Settings() : QObject()
 {
 }
 
-void Settings::load(QStringList& repos)
+void Settings::load(QStringList &repos)
 {
     QStringList groups = m_settings.childGroups();
 
@@ -34,7 +34,7 @@ void Settings::load(QStringList& repos)
     }
 }
 
-void Settings::add(GitRepository* repo)
+void Settings::add(GitRepository *repo)
 {
     if(repo == nullptr) {
         return;
@@ -46,7 +46,7 @@ void Settings::add(GitRepository* repo)
     m_settings.endGroup();
 }
 
-void Settings::saveLastRepo(GitRepository* repo)
+void Settings::saveLastRepo(GitRepository *repo)
 {
     m_settings.beginGroup(GeneralGroupKey);
     m_settings.setValue(LastRepoKey, repo->id());

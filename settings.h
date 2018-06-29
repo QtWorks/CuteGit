@@ -15,10 +15,10 @@ public:
         return &settings;
     }
 
-    void load(QStringList& repos);
-    void add(GitRepository* repo);
+    void load(QStringList &repos);
+    void add(GitRepository *repo);
 
-    void saveLastRepo(GitRepository* activeRepoId);
+    void saveLastRepo(GitRepository *activeRepoId);
     QString loadLastRepo();
 
 private:

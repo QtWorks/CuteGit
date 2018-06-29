@@ -146,4 +146,9 @@ FocusScope {
 
     Tooltip {
     }
+
+    InitialWizard {
+        visible: _handler.repositories.count <= 0
+        anchors.fill: parent
+    }
 }

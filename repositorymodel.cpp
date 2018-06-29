@@ -19,7 +19,7 @@ void RepositoryModel::addRepository(GitRepository *repository)
     }
 
     m_repolist.append(repository->name());
-    add(repository);
+    append(repository);
     setActiveRepositoryIndex(m_repolist.count() - 1);
 }
 

@@ -1,5 +1,4 @@
-#ifndef UNIVERSALLISTMODEL_H
-#define UNIVERSALLISTMODEL_H
+#pragma once
 
 #include <QAbstractListModel>
 
@@ -12,6 +11,11 @@
 
 #include <QDebug>
 
+
+/*! Universal list model is QObject-base list model abstraction.
+ * It exposes all objects properties as data-roles.
+ *
+ */
 template <typename T>
 class UniversalListModel : public QAbstractListModel
 {
@@ -53,21 +57,50 @@ public:
         return dataPtr->property(s_roleNames.value(role));
     }
 
-    bool add(T* value) {
+    /*!
+     * \brief append
+     * \param value
+     * \return
+     */
+    int append(T* value) {
         Q_ASSERT_X(value != nullptr, fullTemplateName(), "Trying to add member of NULL");
 
         if(m_container.indexOf(value) >= 0) {
 #ifdef DEBUG
             qDebug() << fullTemplateName() << "Member already exists";
 #endif
-            return false;
+            return -1;
         }
         beginInsertRows(QModelIndex(), m_container.count(), m_container.count());
         m_container.append(QPointer<T>(value));
         endInsertRows();
-        return true;
+        return m_container.count() - 1;
     }
 
+    /*!
+     * \brief prepend
+     * \param value
+     * \return
+     */
+    int prepend(T* value) {
+        Q_ASSERT_X(value != nullptr, fullTemplateName(), "Trying to add member of NULL");
+
+        if(m_container.indexOf(value) >= 0) {
+#ifdef DEBUG
+            qDebug() << fullTemplateName() << "Member already exists";
+#endif
+            return -1;
+        }
+        beginInsertRows(QModelIndex(), 0, 0);
+        m_container.prepend(QPointer<T>(value));
+        endInsertRows();
+        return 0;
+    }
+
+    /*!
+     * \brief remove
+     * \param value
+     */
     void remove(T* value) {
         Q_ASSERT_X(value != nullptr, fullTemplateName(), ": Trying to remove member of NULL");
 
@@ -80,6 +113,11 @@ public:
         }
     }
 
+    /*!
+     * \brief Resets container with new container passed as parameter
+     * \param container a data for model. Should contain QPointer's to objects.
+     * Passing empty container makes model empty. This method should be used to cleanup model.
+     */
     void reset(const QList<QPointer<T> >& container) {
         beginResetModel();
         clear();
@@ -87,10 +125,21 @@ public:
         endResetModel();
     }
 
+    /*!
+     * \brief Returns the item at index position i in the list. i must be a valid index position in the list (i.e., 0 <= i < rowCount()).
+     * This function is very fast (constant time).
+     * \param i index of looking object
+     * \return Object at provided index
+     */
     T* at(int i) const {
         return m_container.at(i);
     }
 
+    /*!
+     * \brief Looking for index of objec
+     * \param value
+     * \return
+     */
     int indexOf(T* value) const {
         return m_container.indexOf(value);
     }
@@ -98,12 +147,6 @@ public:
 
 protected:
     void clear() {
-//TODO: need to verify if wee really should cleanup these commits.
-//        foreach (const QPointer<T>& value, m_container) {
-//            if(!value.isNull()) {
-//                delete value.data();
-//            }
-//        }
         m_container.clear();
     }
 
@@ -119,5 +162,3 @@ private:
 
 template<typename T>
 QHash<int, QByteArray> UniversalListModel<T>::s_roleNames;
-
-#endif // UNIVERSALLISTMODEL_H

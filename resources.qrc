@@ -53,5 +53,6 @@
         <file>qml/Separator.qml</file>
         <file>images/question-mark-4-24.png</file>
         <file>images/question-mark-4-24_active.png</file>
+        <file>qml/InitialWizard.qml</file>
     </qresource>
 </RCC>
