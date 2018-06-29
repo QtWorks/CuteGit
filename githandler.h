@@ -13,7 +13,7 @@ class TagListModel;
 class QFileSystemWatcher;
 class GitConsole;
 
-typedef QHash<QString, QPointer<CommitModel>> CommitModelContainer;
+using CommitModelContainer = QHash<QString, QPointer<CommitModel>>;
 
 class GitHandler : public QObject
 {

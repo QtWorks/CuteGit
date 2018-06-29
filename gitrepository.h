@@ -17,9 +17,9 @@ class GitCommit;
 class GitRemote;
 struct git_oid;
 
-typedef QMap<QString, QPointer<GitBranch> > BranchContainer;
-typedef QMap<GitOid, QPointer<GitTag> > TagContainer;
-typedef QMap<QString, QPointer<GitRemote> > RemoteContainer;
+using BranchContainer = QMap<QString, QPointer<GitBranch> >;
+using TagContainer = QMap<GitOid, QPointer<GitTag> >;
+using RemoteContainer = QMap<QString, QPointer<GitRemote> >;
 
 class GitRepository : public QObject
 {
