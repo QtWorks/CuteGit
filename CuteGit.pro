@@ -42,7 +42,8 @@ SOURCES += \
     gitconsole.cpp \
     colorhandler.cpp \
     diffmodel.cpp \
-    settings.cpp
+    settings.cpp \
+    universallistmodelbase.cpp
 
 HEADERS += \
     githandler.h \
@@ -69,7 +70,8 @@ HEADERS += \
     gitconsole.h \
     colorhandler.h \
     diffmodel.h \
-    settings.h
+    settings.h \
+    universallistmodelbase.h
 
 RESOURCES += \
     resources.qrc

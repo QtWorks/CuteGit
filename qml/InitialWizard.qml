@@ -4,14 +4,17 @@ import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
 
 FocusScope {
+    anchors.fill: parent
     Rectangle {
         anchors.fill: parent
     }
 
     Text {
+        anchors.centerIn: parent
         textFormat: Text.RichText
-        font.pointSize: 10
-        text: qsTr("Hi!<\br> Seems you started CuteGit for the first time. So lets <a href=\"#open\">open</a> one of your repository.");
+        color: "#bbbbbb"
+        font.pointSize: 14
+        text: qsTr("Hi!<\br> Seems you started CuteGit for the first time. So lets <a href=\"#open\"><font color=\"#666666\">open</font></a> one of your repository.");
         onLinkActivated: {
             if(link == "#open") {
                 repoOpenDialog.open()

@@ -22,6 +22,9 @@ void Settings::load(QStringList &repos)
     QStringList groups = m_settings.childGroups();
 
     foreach (QString group, groups) {
+        if(group == GeneralGroupKey) {
+            continue;
+        }
         m_settings.beginGroup(group);
         QString path = m_settings.value(RepoPathKey).toString();
         QFileInfo fileInfo(path);

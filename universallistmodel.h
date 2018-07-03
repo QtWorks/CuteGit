@@ -1,6 +1,6 @@
 #pragma once
 
-#include <QAbstractListModel>
+#include <universallistmodelbase.h>
 
 #include <QObject>
 #include <QList>
@@ -12,25 +12,29 @@
 #include <QDebug>
 
 
-/*! Universal list model is QObject-base list model abstraction.
+/*!
+ * \brief Universal list model is QObject-base list model abstraction.
  * It exposes all objects properties as data-roles.
- *
  */
 template <typename T>
-class UniversalListModel : public QAbstractListModel
+class UniversalListModel : public UniversalListModelBase
 {
 public:
-    UniversalListModel(QObject* parent = 0) : QAbstractListModel(parent) {}
+    UniversalListModel(QObject* parent = 0) : UniversalListModelBase(parent) {}
     ~UniversalListModel() {
         clear();
     }
 
-    int rowCount(const QModelIndex &parent) const {
+    int rowCount(const QModelIndex &parent) const override {
         Q_UNUSED(parent)
+        return count();
+    }
+
+    int count() const override {
         return m_container.count();
     }
 
-    QHash<int, QByteArray> roleNames() const {
+    QHash<int, QByteArray> roleNames() const override {
         if(s_roleNames.isEmpty()) {
             int propertyCount = T::staticMetaObject.propertyCount();
             for(int i = 1; i < propertyCount; i++) {
@@ -41,7 +45,7 @@ public:
         return s_roleNames;
     }
 
-    QVariant data(const QModelIndex &index, int role) const
+    QVariant data(const QModelIndex &index, int role) const override
     {
         int row = index.row();
 
@@ -73,6 +77,7 @@ public:
         }
         beginInsertRows(QModelIndex(), m_container.count(), m_container.count());
         m_container.append(QPointer<T>(value));
+        emit countChanged();
         endInsertRows();
         return m_container.count() - 1;
     }
@@ -93,6 +98,7 @@ public:
         }
         beginInsertRows(QModelIndex(), 0, 0);
         m_container.prepend(QPointer<T>(value));
+        emit countChanged();
         endInsertRows();
         return 0;
     }
@@ -109,6 +115,7 @@ public:
         if(valueIndex >= 0) {
             beginRemoveRows(QModelIndex(), valueIndex, valueIndex);
             m_container.removeAt(valueIndex);
+            emit countChanged();
             endRemoveRows();
         }
     }
@@ -122,6 +129,7 @@ public:
         beginResetModel();
         clear();
         m_container = container;
+        emit countChanged();
         endResetModel();
     }
 
@@ -144,10 +152,35 @@ public:
         return m_container.indexOf(value);
     }
 
+    /*!
+     * \brief findByProperty method finds item in internal container property of that is provided value
+     * \param propertyName Latin1 name of looking property
+     * \param value property of corresponded type inside QVariant container
+     * \return
+     */
+    QPointer<T> findByProperty(const char* propertyName, const QVariant& value) const {
+        auto iter = std::find_if(m_container.begin(), m_container.end(), [=](const QPointer<T> &item) -> bool {
+            return item->property(propertyName) == value;
+        });
+
+        if(iter != m_container.end()) {
+            return *iter;
+        }
+        return QPointer<T>();
+    }
+
+    /*!
+     * \brief container returns internal container
+     * \return
+     */
+    QList<QPointer<T> > container() const {
+        return m_container;
+    }
 
 protected:
     void clear() {
         m_container.clear();
+        emit countChanged();
     }
 
     QList<QPointer<T> > m_container;

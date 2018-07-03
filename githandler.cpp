@@ -65,16 +65,24 @@ void GitHandler::open(const QUrl &url, bool activate)
 void GitHandler::open(const QString &path, bool activate)
 {
     qDebug() << "path" << path;
-    git_buf root = {0,0,0};
+    git_buf root = {0, 0, 0};
     if(git_repository_discover(&root, path.toUtf8().data(), 0, NULL) != 0) {
         qDebug() << lastError();
         return;
     }
 
-    GitRepository* repo = new GitRepository(QString::fromUtf8(root.ptr, root.size));
+    QString rootStr = QString::fromUtf8(root.ptr, root.size);
+    GitRepository* repo = new GitRepository(rootStr);
+
+    if (!m_repositories->findByProperty("path", QVariant::fromValue(repo->path())).isNull()) {
+        qDebug() << "Repository is already in list";
+        delete repo;
+        return;
+    }
+
     Settings::instance()->add(repo);
     m_repositories->addRepository(repo);
-    if(activate) {
+    if (activate) {
         setActiveRepo(repo);
     }
 }
@@ -87,12 +95,12 @@ void GitHandler::activateRepository(int i)
 
 void GitHandler::setActiveRepo(GitRepository* repo)
 {
-    if(repo == nullptr || !repo->isValid()) {
+    if (repo == nullptr || !repo->isValid()) {
         qDebug() << lastError();
         return;
     }
 
-    if(m_activeRepo) {
+    if (m_activeRepo) {
         disconnect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, m_activeRepo, &GitRepository::readBranches);
         disconnect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, m_activeRepo, &GitRepository::readRemotes);
         disconnect(m_activeRepoWatcher, &QFileSystemWatcher::directoryChanged, m_activeRepo, &GitRepository::readTags);
@@ -269,5 +277,6 @@ void GitHandler::loadCachedRepos()
     foreach (QString repoPath, cachedRepos) {
         open(repoPath, false);
     }
-//    m_repositories->ac(m_repositories->indexOf(m_activeRepo));
+    QPointer<GitRepository> repo = m_repositories->findByProperty("id", QVariant::fromValue<QString>(activeRepo));
+    setActiveRepo(repo);
 }
