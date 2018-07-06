@@ -29,7 +29,13 @@ class GitHandler : public QObject
     Q_PROPERTY(bool isBusy READ isBusy NOTIFY isBusyChanged)
     Q_PROPERTY(QUrl homePath READ homePath CONSTANT)
 
+    Q_ENUMS(PullStrategy)
 public:
+    enum PullStrategy {
+        Rebase,
+        Merge
+    };
+
     GitHandler();
     virtual ~GitHandler();
     Q_INVOKABLE void open(const QString &path, bool activate = false);
@@ -43,6 +49,8 @@ public:
     void onDiffReady();
 
     Q_INVOKABLE void copy(const QString& sha1);
+
+    Q_INVOKABLE void pull(PullStrategy strategy) const;
 
     RepositoryModel* repositories() const
     {
@@ -65,8 +73,6 @@ public:
     {
         return m_commits;
     }
-
-    void pull() const;
 
     BranchListModel* branchList() const
     {

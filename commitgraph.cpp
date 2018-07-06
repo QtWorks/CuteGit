@@ -118,12 +118,26 @@ void CommitGraph::findParents(GitCommit* commit)
 //        qDebug() << "Add commit to reverselist" << parentOid.toString();
         commitRaw = nullptr;
         git_commit_parent(&commitRaw, commit->raw(), 0);
+        if(commitRaw == nullptr) {
+            checkRoot(commit);
+        }
     }
 
-    if(reverseList.count() < 2) { //In case if only original commit in list, we didn't find anything new
+    if(reverseList.count() <= 1) { //In case if only original commit in list, we didn't find anything new
         return;
     }
     addCommits(reverseList);
+}
+
+void CommitGraph::checkRoot(GitCommit *commit)
+{
+    qDebug() << "Check root commit";
+    if(m_points.contains(commit->oid())) {
+        return;
+    }
+    GraphPoint* rootPoint = new GraphPoint(commit->oid(), this);
+    m_sortedPoints.prepend(QPointer<GraphPoint>(rootPoint));
+    m_points.insert(rootPoint->oid(), rootPoint);
 }
 
 void CommitGraph::addCommits(QList<GitOid>& reversList)

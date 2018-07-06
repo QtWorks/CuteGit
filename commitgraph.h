@@ -48,6 +48,7 @@ signals:
 private:
     void findParents(GitCommit *commit);
     void addCommits(QList<GitOid> &reversList);
+    void checkRoot(GitCommit *commit);
 
     QString m_color;
 

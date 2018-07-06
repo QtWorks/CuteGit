@@ -89,8 +89,8 @@ GitDiff* GitCommit::diff()
 
         if(parentRaw) {
             parent.reset(new GitCommit(parentRaw, repository()));
+            m_diff = GitDiff::diff(parent.data(), this);
         }
-        m_diff = GitDiff::diff(parent.data(), this);
     }
     return m_diff.data();
 }

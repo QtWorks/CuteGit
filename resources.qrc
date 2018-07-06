@@ -55,5 +55,6 @@
         <file>images/question-mark-4-24_active.png</file>
         <file>qml/InitialWizard.qml</file>
         <file>qml/RepositoryView.qml</file>
+        <file>qml/popups/PullStrategy.qml</file>
     </qresource>
 </RCC>

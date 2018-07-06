@@ -56,12 +56,17 @@ signals:
 private:
     GitCommit();
 
-    QString m_author;
-    QDateTime m_time;
-    QString m_message;
-    QString m_email;
+/*
+ * TODO: Seems cached values are not used. Don't remember why it's done this way.
+ * But it's better to remove them.
+ */
+//    QString m_author;
+//    QDateTime m_time;
+//    QString m_message;
+//    QString m_email;
+//    QString m_summary;
+
     QPointer<GitDiff> m_diff;
-    QString m_summary;
 };
 
 #endif // GITCOMMIT_H

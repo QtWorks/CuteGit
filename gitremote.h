@@ -9,12 +9,15 @@ struct git_remote;
 class GitRemote : public GitBase<git_remote>
 {
     Q_OBJECT
-
 public:
     GitRemote(git_remote* raw, GitRepository* parent);
     static GitRemote* fromName(const QString& remoteName, GitRepository* parent);
 
+    void fetch();
+
     QString name() const;
+signals:
+
 private:
 };
 

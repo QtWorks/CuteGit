@@ -2,6 +2,9 @@ import QtQuick 2.0
 import QtQuick.Dialogs 1.2
 import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
+
+import "popups"
+
 Item {
     id: root
     anchors.right: parent.right
@@ -45,6 +48,14 @@ Item {
             onClicked: {
                 console.log("repoOpenDialog.folder: " + repoOpenDialog.folder)
                 repoOpenDialog.open()
+            }
+        }
+
+        Button {
+            anchors.verticalCenter: parent.verticalCenter
+            text: qsTr("Pull")
+            onClicked: {
+                pullDialog.open()
             }
         }
     }
@@ -109,6 +120,13 @@ Item {
                      "You can support project by contributing your ideas and code to CuteGit repository.</p>" +
                      "<p><b>Author:</b> Alexey Edelev aka semlanik</p>"
             }
+        }
+    }
+
+    PullStrategy {
+        id: pullDialog
+        onAccepted: {
+            _handler.pull(pullDialog.strategy)
         }
     }
 }

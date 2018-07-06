@@ -43,7 +43,8 @@ SOURCES += \
     colorhandler.cpp \
     diffmodel.cpp \
     settings.cpp \
-    universallistmodelbase.cpp
+    universallistmodelbase.cpp \
+    gitauthenticator.cpp
 
 HEADERS += \
     githandler.h \
@@ -71,7 +72,8 @@ HEADERS += \
     colorhandler.h \
     diffmodel.h \
     settings.h \
-    universallistmodelbase.h
+    universallistmodelbase.h \
+    gitauthenticator.h
 
 RESOURCES += \
     resources.qrc

@@ -24,6 +24,7 @@
 #include <gitconsole.h>
 #include <graphpoint.h>
 #include <settings.h>
+#include <gitremote.h>
 
 GitHandler::GitHandler() : QObject()
   ,m_repositories(new RepositoryModel(this))
@@ -198,9 +199,22 @@ GitDiff* GitHandler::activeDiff() const
     return m_activeDiff.data();
 }
 
-void GitHandler::pull() const
+void GitHandler::pull(PullStrategy strategy) const
 {
-    //    git_remote_fetch(m_activeRepo->remote)
+    if(m_activeRepo->remotes().count() <= 0) {
+        qWarning() << "No remotes available for repository. Please add manually in console";
+        //TODO: duplicate with warning popup
+        return;
+    }
+
+    GitRemote *remote = m_activeRepo->remotes().first().data();
+    if(remote == nullptr) {
+        qCritical() << "Null remote in remotes detected. It's critical";
+        Q_ASSERT(remote == nullptr);
+        return;
+    }
+
+    remote->fetch();
 }
 
 void GitHandler::updateModels()
