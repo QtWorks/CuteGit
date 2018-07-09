@@ -31,7 +31,9 @@ public:
     QString refName() const;
 
 protected:
-    GitReference(git_reference* ref, GitRepository* parent);
+    GitReference(git_reference *ref, GitRepository *parent);
+    GitReference(GitReference &&ref);
+    GitReference &operator=(GitReference &&ref);
     void free();
 
     ReferenceNamespace m_namespace;

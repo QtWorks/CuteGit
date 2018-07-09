@@ -25,6 +25,7 @@ GitRepository::GitRepository(const QString& root) : QObject(nullptr)
     m_path = git_repository_workdir(m_raw);
     m_name = m_path.split("/", QString::SkipEmptyParts).last();
     qDebug() << "New repo:" << m_name << m_root << m_path;
+
     readBranches();
     readTags();
     readRemotes();
@@ -93,6 +94,7 @@ void GitRepository::readRemotes()
             m_remotes.insert(remote->name(), QPointer<GitRemote>(remote));
         }
     }
+//TODO: Why this code was left?
 //    git_reference_foreach_glob(raw(),"refs/remotes/*", [](const char *name, void *payload) -> int
 //    {
 //        qDebug() << "Remotes: " << name;
@@ -108,7 +110,7 @@ void GitRepository::readRemotes()
 void GitRepository::checkout(QObject* object)
 {
     git_checkout_options opts;
-    git_checkout_init_options(&opts,GIT_CHECKOUT_OPTIONS_VERSION);
+    git_checkout_init_options(&opts, GIT_CHECKOUT_OPTIONS_VERSION);
 
     opts.checkout_strategy = GIT_CHECKOUT_FORCE;//TODO: modify to merge policy
     opts.notify_flags = GIT_CHECKOUT_NOTIFY_ALL;
@@ -152,14 +154,14 @@ void GitRepository::checkout(QObject* object)
         commit = GitCommit::fromOid(branch->oid());
         qDebug() << "Checkout branch: " << git_checkout_tree(raw(), (git_object*)(commit->raw()), &opts);
         switch(branch->type()) {
-            case GitBranch::Local:
-                break;
+        case GitBranch::Local:
+            break;
         case GitBranch::Remote:
             git_reference* ref;
             //TODO: better to create API for local branch creation
-            if(0 == git_branch_create_from_annotated(&ref, raw(), branch->name().toUtf8().data(), branch->annontatedCommit(), 0)) {
+            if(0 == git_branch_create_from_annotated(&ref, raw(), branch->name().toUtf8().data(), branch->annotatedCommit(), 0)) {
                 branch = new GitBranch(ref, GIT_BRANCH_LOCAL, this);
-                git_branch_set_upstream(ref, branch->fullName().toUtf8().data());
+                branch->setUpstream(*branch);
                 m_branches.insert(branch->fullName(), QPointer<GitBranch>(branch));
                 emit branchesChanged();
             } else if(m_branches.contains(branch->name())) { /*
@@ -200,8 +202,34 @@ void GitRepository::updateHead()
     qDebug() << "Repo head" << m_head.toString();
 }
 
-
 QString GitRepository::id() const
 {
     return QCryptographicHash::hash(name().toUtf8() + path().toUtf8(), QCryptographicHash::Sha1).toHex();
 }
+
+#if 0 //Test functionality
+void GitRepository::testReadBranches()
+{
+    QList<GitBranch*> m_branches;
+    git_reference *branchRef;
+    git_branch_t branchType;
+    git_branch_iterator* iter;
+    git_branch_iterator_new(&iter, m_raw, GIT_BRANCH_ALL);
+    while(git_branch_next(&branchRef, &branchType, iter) == 0) {
+        GitBranch* branch = new GitBranch(branchRef, branchType, this);
+        qDebug() << branch->fullName();
+        qDebug() << branch->type();
+        GitBranch upstreamBranch = std::move(branch->upstream());
+        m_branches.append(branch);
+//        qDebug() << upstreamBranch.fullName();
+    }
+
+    for(auto branch : m_branches)
+    {
+        GitBranch branchMoved(std::move(*branch));
+        delete branch;
+        GitBranch upstream = branchMoved.upstream();
+        qDebug() << "valid upstream:" << upstream.isValid();
+    }
+}
+#endif

@@ -1,5 +1,7 @@
 QT += qml quick widgets concurrent
 
+QMAKE_CXXFLAGS = -std=c++14
+
 TARGET = CuteGit
 
 TEMPLATE = app

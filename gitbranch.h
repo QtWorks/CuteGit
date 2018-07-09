@@ -18,11 +18,15 @@ class GitBranch : public GitReference
 
 public:
     enum BranchType {
+        Invalid = 0,
         Local = GIT_BRANCH_LOCAL,
         Remote = GIT_BRANCH_REMOTE
     };
 
-    GitBranch(git_reference* ref, git_branch_t type, GitRepository* parent);
+    GitBranch(git_reference *ref, git_branch_t type, GitRepository *parent);
+    GitBranch(GitBranch &&other);
+    GitBranch &operator=(GitBranch &&other);
+
     virtual ~GitBranch();
 
     BranchType type() const;
@@ -35,7 +39,7 @@ public:
         return m_fullName;
     }
 
-    git_annotated_commit* annontatedCommit()
+    git_annotated_commit *annotatedCommit()
     {
         return m_commit;
     }
@@ -44,6 +48,10 @@ public:
     {
         return m_remote;
     }
+
+    GitBranch upstream() const;
+
+    void setUpstream(const GitBranch &branch);
 
 public slots:
     void setName(QString name) {
@@ -66,7 +74,7 @@ private:
     GitBranch();
     Q_DISABLE_COPY(GitBranch)
 
-    git_annotated_commit* m_commit;
+    git_annotated_commit *m_commit;
     BranchType m_type;
     QString m_name;
     QString m_fullName;

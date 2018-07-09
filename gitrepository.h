@@ -130,6 +130,10 @@ private:
     TagContainer m_tags;
     RemoteContainer m_remotes;
     GitOid m_head;
+#if 0 //Test functionality
+public:
+    void testReadBranches();
+#endif
 };
 
 #endif // GITREPOSITORY_H

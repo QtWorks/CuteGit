@@ -215,6 +215,7 @@ void GitHandler::pull(PullStrategy strategy) const
     }
 
     remote->fetch();
+//    git_merge_analysis();
 }
 
 void GitHandler::updateModels()

@@ -10,14 +10,29 @@ template<typename T>
 class GitBaseOid : public GitBase<T>
 {
 public:
-    GitBaseOid(T* raw, GitRepository* parent) : GitBase<T>(raw, parent)
+    const GitOid &oid() const {
+        return m_oid;
+    }
+
+protected:
+    GitBaseOid(T *raw, GitRepository *parent) : GitBase<T>(raw, parent)
       ,m_oid(nullptr, parent)
     {}
 
-    const GitOid& oid() const {
-        return m_oid;
+    GitBaseOid(GitBaseOid &&other) : GitBase<T>(std::move(other))
+    {
+        m_oid = other.m_oid;
+        other.m_oid = GitOid();
     }
-protected:
+
+    GitBaseOid &operator=(GitBaseOid &&other) {
+        if (&other != this) {
+            m_oid = other.m_oid;
+            other.m_oid = GitOid();
+        }
+        return static_cast<GitBaseOid&>(GitBase<T>::operator=(std::move(other)));
+    }
+
     GitOid m_oid;
 };
 
