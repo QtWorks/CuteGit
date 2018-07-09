@@ -199,7 +199,7 @@ GitDiff* GitHandler::activeDiff() const
     return m_activeDiff.data();
 }
 
-void GitHandler::pull(PullStrategy strategy) const
+void GitHandler::pull(GitBranch::PullStrategy strategy) const
 {
     if(m_activeRepo->remotes().count() <= 0) {
         qWarning() << "No remotes available for repository. Please add manually in console";
@@ -215,7 +215,19 @@ void GitHandler::pull(PullStrategy strategy) const
     }
 
     remote->fetch();
-//    git_merge_analysis();
+    GitOid oid = m_activeRepo->head();
+    auto branches = m_activeRepo->branches();
+    auto result = std::find_if(branches.begin(), branches.end(), [&](QPointer<GitBranch>& branch) {
+        return branch->oid() == oid;
+    });
+
+    if(result == branches.end() || (*result).isNull()) {
+        qDebug() << "HEAD is not on branch";
+        return;
+    }
+
+    GitBranch *headBranch = (*result);
+    headBranch->pull(strategy);
 }
 
 void GitHandler::updateModels()

@@ -11,7 +11,7 @@ const char remoteAddtion = '/';
 
 GitBranch::GitBranch() : GitReference(nullptr, nullptr)
   ,m_commit(nullptr)
-  ,m_type(Invalid)
+  ,m_type(GitBranch::Invalid)
 {
 }
 
@@ -44,6 +44,7 @@ GitBranch::GitBranch(GitBranch&& other) : GitReference(std::move(other))
     }
     m_commit = other.m_commit;
     other.m_commit = nullptr;
+    other.m_type = GitBranch::Invalid;
 }
 
 GitBranch &GitBranch::operator=(GitBranch&& other)
@@ -55,6 +56,7 @@ GitBranch &GitBranch::operator=(GitBranch&& other)
         }
         m_commit = other.m_commit;
         other.m_commit = nullptr;
+        other.m_type = GitBranch::Invalid;
     }
     return static_cast<GitBranch&>(GitReference::operator=(std::move(other)));
 }
@@ -74,8 +76,8 @@ GitBranch::BranchType GitBranch::type() const
 
 void GitBranch::setUpstream(const GitBranch& branch)
 {
-    if(type() == GIT_BRANCH_REMOTE
-            || branch.type() == GIT_BRANCH_LOCAL) {
+    if(type() == GitBranch::Remote
+            || branch.type() == GitBranch::Local) {
         qWarning() << "Try to setup invalid pair of upstream/local branches";
         return;
     }
@@ -85,7 +87,7 @@ void GitBranch::setUpstream(const GitBranch& branch)
 GitBranch GitBranch::upstream() const
 {
     git_reference* ref = nullptr;
-    if(type() == GIT_BRANCH_REMOTE) {
+    if(type() == GitBranch::Remote) {
         qDebug() << "Skipping upstream read for remote branch";
         return GitBranch();
     }
@@ -94,4 +96,52 @@ GitBranch GitBranch::upstream() const
         return GitBranch();
     }
     return GitBranch(ref, GIT_BRANCH_REMOTE, repository());
+}
+
+void GitBranch::pull(PullStrategy strategy)
+{
+    if(type() == GitBranch::Remote) {
+        qWarning() << "It's not possible to update remote branch, seems issue in branch handling logic";
+        return;
+    }
+
+    GitBranch upstreamBranch = upstream();
+
+    qDebug() << "Upstream branch for " << fullName() << " is " << upstreamBranch.fullName();
+
+    git_annotated_commit* commit = upstreamBranch.annotatedCommit();
+    git_merge_analysis_t analResult;
+    git_merge_preference_t preferences;
+    git_merge_analysis(&analResult, &preferences, m_repository->raw(), (const git_annotated_commit**)&commit, 1);
+
+    if (analResult & GIT_MERGE_ANALYSIS_UP_TO_DATE) {
+        qDebug() << "Up-to-date";
+        return;
+    }
+
+    if (analResult & GIT_MERGE_ANALYSIS_FASTFORWARD) {
+        qDebug() << "Fast-forward possible";
+        fastForward();
+        return;
+    }
+
+    switch (strategy) {
+    case Merge:
+        //TDB: Apply merge strategy
+        break;
+    default:
+        //TDB: Apply merge strategy
+        break;
+    }
+    qWarning() << "Other merge methods are not supported yet";
+}
+
+void GitBranch::fastForward()
+{
+    git_reference *newRaw = nullptr;
+    if(0 == git_reference_set_target(&newRaw, m_raw, upstream().oid().raw(), "Update branch HEAD using fast-forward")) {
+        m_raw = newRaw;
+    } else {
+        qWarning() << "Could not apply fast-forward " << lastError();
+    }
 }

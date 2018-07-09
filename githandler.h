@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include <repositorymodel.h>
+#include <gitbranch.h>
 #include <QFutureWatcher>
 
 class CommitModel;
@@ -29,13 +30,7 @@ class GitHandler : public QObject
     Q_PROPERTY(bool isBusy READ isBusy NOTIFY isBusyChanged)
     Q_PROPERTY(QUrl homePath READ homePath CONSTANT)
 
-    Q_ENUMS(PullStrategy)
 public:
-    enum PullStrategy {
-        Rebase,
-        Merge
-    };
-
     GitHandler();
     virtual ~GitHandler();
     Q_INVOKABLE void open(const QString &path, bool activate = false);
@@ -50,7 +45,7 @@ public:
 
     Q_INVOKABLE void copy(const QString& sha1);
 
-    Q_INVOKABLE void pull(PullStrategy strategy) const;
+    Q_INVOKABLE void pull(GitBranch::PullStrategy strategy) const;
 
     RepositoryModel* repositories() const
     {
@@ -147,5 +142,7 @@ private:
 
     //    GitOid m_constantHead; //TODO:
 };
+
+Q_DECLARE_METATYPE(GitBranch::PullStrategy)
 
 #endif // GITHANDLER_H

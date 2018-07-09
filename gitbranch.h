@@ -14,13 +14,18 @@ class GitBranch : public GitReference
     Q_PROPERTY(QString remote READ remote NOTIFY remoteChanged)
     Q_PROPERTY(BranchType type READ type CONSTANT)
     Q_PROPERTY(GitOid oid READ oid CONSTANT)
-    Q_ENUMS(BranchType)
+    Q_ENUMS(BranchType PullStrategy)
 
 public:
     enum BranchType {
         Invalid = 0,
         Local = GIT_BRANCH_LOCAL,
         Remote = GIT_BRANCH_REMOTE
+    };
+
+    enum PullStrategy {
+        Rebase,
+        Merge
     };
 
     GitBranch(git_reference *ref, git_branch_t type, GitRepository *parent);
@@ -53,6 +58,8 @@ public:
 
     void setUpstream(const GitBranch &branch);
 
+    void pull(PullStrategy strategy);
+
 public slots:
     void setName(QString name) {
         if (m_name == name)
@@ -71,6 +78,8 @@ signals:
 
 private:
     void free();
+    void fastForward();
+
     GitBranch();
     Q_DISABLE_COPY(GitBranch)
 
