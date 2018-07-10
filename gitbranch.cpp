@@ -109,10 +109,10 @@ void GitBranch::pull(PullStrategy strategy)
 
     qDebug() << "Upstream branch for " << fullName() << " is " << upstreamBranch.fullName();
 
-    git_annotated_commit* commit = upstreamBranch.annotatedCommit();
+    git_annotated_commit* upstreamCommit = upstreamBranch.annotatedCommit();
     git_merge_analysis_t analResult;
     git_merge_preference_t preferences;
-    git_merge_analysis(&analResult, &preferences, m_repository->raw(), (const git_annotated_commit**)&commit, 1);
+    git_merge_analysis(&analResult, &preferences, m_repository->raw(), (const git_annotated_commit**)&upstreamCommit, 1);
 
     if (analResult & GIT_MERGE_ANALYSIS_UP_TO_DATE) {
         qDebug() << "Up-to-date";
@@ -125,12 +125,17 @@ void GitBranch::pull(PullStrategy strategy)
         return;
     }
 
+    if(analResult & GIT_MERGE_ANALYSIS_UNBORN) {
+        qWarning() << "Merge is impossible";
+        return;
+    }
+
     switch (strategy) {
     case Merge:
         //TDB: Apply merge strategy
         break;
     default:
-        //TDB: Apply merge strategy
+        rebase(upstreamCommit);
         break;
     }
     qWarning() << "Other merge methods are not supported yet";
@@ -140,8 +145,51 @@ void GitBranch::fastForward()
 {
     git_reference *newRaw = nullptr;
     if(0 == git_reference_set_target(&newRaw, m_raw, upstream().oid().raw(), "Update branch HEAD using fast-forward")) {
+        git_reference_free(m_raw);
         m_raw = newRaw;
     } else {
         qWarning() << "Could not apply fast-forward " << lastError();
     }
+}
+
+void GitBranch::rebase(git_annotated_commit *upstreamCommit)
+{
+    if(!isValid() || upstreamCommit == nullptr) {
+        qWarning() << "Trying to reabase with invalid inputs";
+        return;
+    }
+
+    git_rebase *rebase;
+    git_rebase_options options = GIT_REBASE_OPTIONS_INIT;
+    git_rebase_init(&rebase, m_repository->raw(), m_commit, upstreamCommit, NULL, &options);
+
+    while(true) {
+        git_rebase_operation *operation = nullptr;
+        if(git_rebase_next(&operation, rebase) != 0) {
+            break;
+        }
+
+        if(operation->type != GIT_REBASE_OPERATION_PICK) {
+            qDebug() << "Rebase failed";
+            git_rebase_free(rebase);
+            return;
+        }
+    }
+
+    git_index *index;
+    git_repository_index(&index, m_repository->raw());
+    if(git_index_has_conflicts(index) == 1) {
+        qDebug() << "Conflicts found";
+        git_index_free(index);
+        git_rebase_free(rebase);
+        return;
+    }
+
+    git_signature *signature;
+    git_signature_default(&signature, m_repository->raw());
+
+    git_oid commit_id;
+    git_rebase_commit(&commit_id, rebase, NULL, signature, NULL, NULL);
+    git_rebase_free(rebase);
+    git_signature_free(signature);
 }

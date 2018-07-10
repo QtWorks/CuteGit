@@ -79,6 +79,7 @@ signals:
 private:
     void free();
     void fastForward();
+    void rebase(git_annotated_commit* upstreamCommit);
 
     GitBranch();
     Q_DISABLE_COPY(GitBranch)
