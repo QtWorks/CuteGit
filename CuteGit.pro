@@ -46,7 +46,9 @@ SOURCES += \
     diffmodel.cpp \
     settings.cpp \
     universallistmodelbase.cpp \
-    gitauthenticator.cpp
+    gitauthenticator.cpp \
+    notificationcenter.cpp \
+    notification.cpp
 
 HEADERS += \
     githandler.h \
@@ -75,7 +77,9 @@ HEADERS += \
     diffmodel.h \
     settings.h \
     universallistmodelbase.h \
-    gitauthenticator.h
+    gitauthenticator.h \
+    notificationcenter.h \
+    notification.h
 
 RESOURCES += \
     resources.qrc
